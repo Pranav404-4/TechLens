@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TechLens</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brandmark">T</div>
+    <div class="brandcopy">
+  <div class="brand-title-row">
+    <h1>TechLens</h1>
+    <span class="release-badge">EARLY ACCESS</span>
+  </div>
+  <p>Website technology detector</p>
+</div>
+    <button id="refresh" class="icon-button" title="Rescan this page" aria-label="Rescan">↻</button>
+  </header>
+  <main>
+<nav class="view-tabs" aria-label="TechLens views">
+  <button
+    type="button"
+    class="view-tab active"
+    data-view="technologies"
+    aria-selected="true"
+  >
+    Technologies
+  </button>
+
+  <button
+    type="button"
+    class="view-tab"
+    data-view="security"
+    aria-selected="false"
+  >
+    Security
+  </button>
+</nav>
+      <div id="technologies-view" class="view-panel">
+    <section class="site-card">
+      <div class="site-icon">◎</div>
+      <div class="site-info"><div id="site-host" class="host">Scanning current tab…</div><div id="site-title" class="site-title"></div></div>
+          <span id="count" class="count">0</span>
+  </section>
+
+  <div class="summary-row">
+      <div><strong id="detected-count">0</strong><span>Technologies</span></div>
+      <div><strong id="high-count">0</strong><span>High confidence</span></div>
+      <button id="export" class="export-button">Export JSON</button>
+    </div>
+    <nav id="filters" class="filters" aria-label="Technology categories">
+      <button class="filter active" data-filter="All">All</button>
+    </nav>
+    <div id="status" class="status">Inspecting accessible page evidence…</div>
+      <section id="results" class="results"></section>
+
+</div>
+
+<div id="security-view" class="view-panel" hidden>
+  <section id="security-insights" class="security-insights">
+  <div class="security-heading">
+    <div class="security-title">
+      <div class="security-icon">🛡</div>
+      <div>
+        <h2>Security Insights</h2>
+        <p>Security headers and configuration review</p>
+      </div>
+    </div>
+
+    <div class="security-actions">
+      <span id="risk-count" class="count">0</span>
+      <button
+        id="export-security"
+        class="export-button security-export-button"
+        type="button"
+      >
+        Export Report
+      </button>
+    </div>
+  </div>
+
+  <div id="risk-results">
+    <p class="risk-empty">Security insights will appear after scanning.</p>
+  </div>
+</section>
+</div>
+    <section id="empty" class="empty" hidden>
+      <div class="empty-icon">⌕</div><h2>No technologies detected</h2>
+      <p>Try a regular website, then rescan. Browser-internal pages cannot be inspected.</p>
+    </section>
+    </div>
+    <footer>
+  <span>Passive fingerprinting · Evidence-based · No exploit requests</span>
+  <span class="version-label">TechLens v1.0.0 · Early Access</span>
+</footer>
+  </main>
+  <script src="detector.js"></script>
+  <script src="riskAnalyzer.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
