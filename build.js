@@ -22,16 +22,14 @@ function copyFiles(destination, manifestFile) {
   fs.mkdirSync(destination, { recursive: true });
 
   for (const file of COMMON_FILES) {
-    fs.cpSync(
-      path.join(ROOT, file),
-      path.join(destination, file),
-      { recursive: true }
-    );
+    fs.cpSync(path.join(ROOT, file), path.join(destination, file), {
+      recursive: true,
+    });
   }
 
   fs.copyFileSync(
     path.join(ROOT, manifestFile),
-    path.join(destination, "manifest.json")
+    path.join(destination, "manifest.json"),
   );
 
   console.log(`Build created: ${path.relative(ROOT, destination)}`);
