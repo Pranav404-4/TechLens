@@ -73,26 +73,35 @@ The actual website label and date depend on the page being inspected and the dat
 
 ## Installation
 
+### Step 1: Build TechLens
+
+From the project directory, run:
+
+```bash
+node build.js
+```
+
+This generates separate browser builds:
+
+- `dist/chrome/` — Chrome build.
+- `dist/firefox/` — Firefox build.
+
 ### Chrome
 
-1. Obtain and extract the TechLens project folder.
-2. Open `chrome://extensions`.
-3. Enable **Developer mode**.
-4. Click **Load unpacked**.
-5. Select the project folder containing `manifest.json`.
-6. Open a website and click the TechLens extension icon.
+1. Open `chrome://extensions`.
+2. Enable **Developer mode**.
+3. Click **Load unpacked**.
+4. Select the `dist/chrome/` folder.
+5. Open a website and click the TechLens extension icon.
 
 ### Firefox
 
-1. Obtain and extract the TechLens project folder.
-2. Open `about:debugging#/runtime/this-firefox`.
-3. Click **Load Temporary Add-on…**.
-4. Select `manifest.firefox.json` from the project folder.
-5. Open a website and click the TechLens extension icon.
+1. Open `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on…**.
+3. Open the `dist/firefox/` folder and select `manifest.json`.
+4. Open a website and click the TechLens extension icon.
 
 Firefox temporary add-ons are generally removed when Firefox restarts. For distribution beyond local testing, follow Mozilla's extension packaging and signing requirements.
-
-> **Firefox note:** The Firefox manifest uses `background.service_worker`. Verify compatibility with the Firefox version and configuration you intend to support before distributing the extension.
 
 ## Using TechLens
 
