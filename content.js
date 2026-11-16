@@ -128,7 +128,7 @@
     const versionHints = [];
     const seenVersions = new Set();
 
-    function addVersion(name, version) {
+    function addVersion(name, version, source, confidence) {
       if (version === undefined || version === null) return;
 
       const value = String(version).trim();
@@ -138,11 +138,24 @@
 
       const key = name.toLowerCase();
 
-      // Keep the first available hint for each technology.
-      if (seenVersions.has(key)) return;
+      // Avoid storing the same version observation twice.
+      const alreadyExists = versionHints.some(
+        (hint) =>
+          hint.name?.toLowerCase() === key &&
+          hint.version === value &&
+          hint.source === source,
+      );
+
+      if (alreadyExists) return;
 
       seenVersions.add(key);
-      versionHints.push({ name, version: value });
+
+      versionHints.push({
+        name,
+        version: value,
+        source,
+        confidence,
+      });
     }
 
     // Read versions exposed by runtime globals.
@@ -151,19 +164,19 @@
 
     try {
       if (window.jQuery?.fn?.jquery) {
-        addVersion("jQuery", window.jQuery.fn.jquery);
+        addVersion("jQuery", window.jQuery.fn.jquery, "runtime", 95);
       }
     } catch (_) {}
 
     try {
       if (window.React?.version) {
-        addVersion("React", window.React.version);
+        addVersion("React", window.React.version, "runtime", 95);
       }
     } catch (_) {}
 
     try {
       if (window.Vue?.version) {
-        addVersion("Vue.js", window.Vue.version);
+        addVersion("Vue.js", window.Vue.version, "runtime", 95);
       }
     } catch (_) {}
 
@@ -172,68 +185,78 @@
         .querySelector("[ng-version]")
         ?.getAttribute("ng-version");
 
-      if (version) addVersion("Angular", version);
+      if (version) addVersion("Angular", version, "dom", 95);
     } catch (_) {}
 
     try {
       if (window.axios?.VERSION) {
-        addVersion("Axios", window.axios.VERSION);
+        addVersion("Axios", window.axios.VERSION, "runtime", 95);
       }
     } catch (_) {}
 
     try {
       if (window.htmx?.version) {
-        addVersion("HTMX", window.htmx.version);
+        addVersion("HTMX", window.htmx.version, "runtime", 95);
       }
     } catch (_) {}
 
     try {
       if (window.d3?.version) {
-        addVersion("D3.js", window.d3.version);
+        addVersion("D3.js", window.d3.version, "runtime", 95);
       }
     } catch (_) {}
 
     try {
       if (window.gsap?.version) {
-        addVersion("GSAP", window.gsap.version);
+        addVersion("GSAP", window.gsap.version, "runtime", 95);
       }
     } catch (_) {}
 
     try {
       if (window._?.VERSION) {
-        addVersion("Lodash", window._.VERSION);
+        addVersion("Lodash", window._.VERSION, "runtime", 95);
       }
     } catch (_) {}
 
     try {
       if (window.Backbone?.VERSION) {
-        addVersion("Backbone", window.Backbone.VERSION);
+        addVersion("Backbone", window.Backbone.VERSION, "runtime", 95);
       }
     } catch (_) {}
 
     try {
       if (window.Ember?.VERSION) {
-        addVersion("Ember", window.Ember.VERSION);
+        addVersion("Ember", window.Ember.VERSION, "runtime", 95);
       }
     } catch (_) {}
 
     try {
       if (window.Handlebars?.VERSION) {
-        addVersion("Handlebars", window.Handlebars.VERSION);
+        addVersion("Handlebars", window.Handlebars.VERSION, "runtime", 95);
       }
     } catch (_) {}
 
     try {
       if (window.Mustache?.version) {
-        addVersion("Mustache", window.Mustache.version);
+        addVersion("Mustache", window.Mustache.version, "runtime", 95);
       }
     } catch (_) {}
 
     try {
       if (window.bootstrap?.Tooltip?.VERSION) {
-        addVersion("Bootstrap", window.bootstrap.Tooltip.VERSION);
+        addVersion(
+          "Bootstrap",
+          window.bootstrap.Tooltip.VERSION,
+          "runtime",
+          95,
+        );
       } else if (window.jQuery?.fn?.tooltip?.Constructor?.VERSION) {
-        addVersion("Bootstrap", window.jQuery.fn.tooltip.Constructor.VERSION);
+        addVersion(
+          "Bootstrap",
+          window.jQuery.fn.tooltip.Constructor.VERSION,
+          "runtime",
+          90,
+        );
       }
     } catch (_) {}
 
@@ -255,7 +278,7 @@
           ghost: "Ghost",
         };
 
-        addVersion(names[match[1].toLowerCase()], match[2]);
+        addVersion(names[match[1].toLowerCase()], match[2], "meta", 90);
       }
     } catch (_) {}
 
@@ -302,7 +325,7 @@
         const match = url.match(pattern);
 
         if (match) {
-          addVersion(name, match[1]);
+          addVersion(name, match[1], "resource", 85);
           break;
         }
       }
@@ -315,7 +338,7 @@
           window.__SENTRY__?.version ?? window.__SENTRY__?.hub?._version;
 
         if (sentryVersion != null) {
-          addVersion("Sentry", sentryVersion);
+          addVersion("Sentry", sentryVersion, "runtime", 95);
         }
       } catch (_) {}
     }

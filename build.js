@@ -8,6 +8,7 @@ const DIST = path.join(ROOT, "dist");
 
 const COMMON_FILES = [
   "background.js",
+  "cveClient.js",
   "content.js",
   "detector.js",
   "popup.js",

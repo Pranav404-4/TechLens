@@ -302,14 +302,21 @@ async function scan() {
       response.page.versionHints ??= [];
 
       for (const item of versions) {
+        const versionHint = {
+          ...item,
+          source: item.source || "runtime",
+          confidence: item.confidence ?? 95,
+        };
+
         const exists = response.page.versionHints.some(
           (hint) =>
-            hint.name?.toLowerCase() === item.name.toLowerCase() &&
-            hint.version,
+            hint.name?.toLowerCase() === versionHint.name?.toLowerCase() &&
+            hint.version === versionHint.version &&
+            hint.source === versionHint.source,
         );
 
         if (!exists) {
-          response.page.versionHints.push(item);
+          response.page.versionHints.push(versionHint);
         }
       }
     } catch (error) {
@@ -355,16 +362,19 @@ async function scan() {
       if (vueVersion) {
         response.page.versionHints ??= [];
 
-        const existingVueHint = response.page.versionHints.find(
-          (hint) => hint.name?.toLowerCase() === "vue.js",
+        const vueHintExists = response.page.versionHints.some(
+          (hint) =>
+            hint.name?.toLowerCase() === "vue.js" &&
+            hint.version === vueVersion &&
+            hint.source === "bundle",
         );
 
-        if (existingVueHint) {
-          existingVueHint.version = vueVersion;
-        } else {
+        if (!vueHintExists) {
           response.page.versionHints.push({
             name: "Vue.js",
             version: vueVersion,
+            source: "bundle",
+            confidence: 95,
           });
         }
       }
@@ -441,16 +451,19 @@ async function scan() {
       if (reactVersion) {
         response.page.versionHints ??= [];
 
-        const existingReactHint = response.page.versionHints.find(
-          (hint) => hint.name?.toLowerCase() === "react",
+        const reactHintExists = response.page.versionHints.some(
+          (hint) =>
+            hint.name?.toLowerCase() === "react" &&
+            hint.version === reactVersion &&
+            hint.source === "bundle",
         );
 
-        if (existingReactHint) {
-          existingReactHint.version = reactVersion;
-        } else {
+        if (!reactHintExists) {
           response.page.versionHints.push({
             name: "React",
             version: reactVersion,
+            source: "bundle",
+            confidence: 95,
           });
         }
       }
@@ -471,6 +484,7 @@ async function scan() {
         ? Math.max(0, Math.min(99, detection.confidence))
         : 70,
       version: detection.version || null,
+      versionInfo: detection.versionInfo || null,
       evidence: Array.isArray(detection.evidence) ? detection.evidence : [],
       sourceUrl: tab.url,
     }));

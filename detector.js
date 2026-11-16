@@ -1,25 +1,79 @@
 const RULES = [
   // Analytics
   {
+    id: "fathom-analytics",
     name: "Fathom Analytics",
     category: "Analytics",
+    product: {
+      vendor: "Fathom",
+      name: "Fathom Analytics",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: null,
+      aliases: [],
+      versionScope: "unknown",
+    },
     confidence: 95,
-    tests: [["script", "cdn.usefathom.com/script.js"]],
-  },
-  {
-    name: "Umami",
-    category: "Analytics",
-    confidence: 94,
-    tests: [
-      ["script", "cloud.umami.is/script.js"],
-      ["script", "analytics.umami.is/script.js"],
+    signatures: [
+      {
+        type: "script",
+        pattern: "cdn.usefathom.com/script.js",
+        match: "contains",
+        weight: 95,
+      },
     ],
   },
   {
+    id: "umami",
+    name: "Umami",
+    category: "Analytics",
+    product: {
+      vendor: "Umami",
+      name: "Umami",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: null,
+      aliases: [],
+      versionScope: "unknown",
+    },
+    confidence: 94,
+    signatures: [
+      {
+        type: "script",
+        pattern: "cloud.umami.is/script.js",
+        match: "contains",
+        weight: 95,
+      },
+      {
+        type: "script",
+        pattern: "analytics.umami.is/script.js",
+        match: "contains",
+        weight: 95,
+      },
+    ],
+  },
+  {
+    id: "simple-analytics",
     name: "Simple Analytics",
     category: "Analytics",
+    product: {
+      vendor: "Simple Analytics",
+      name: "Simple Analytics",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: null,
+      aliases: [],
+      versionScope: "unknown",
+    },
     confidence: 94,
-    tests: [["script", "scripts.simpleanalyticscdn.com"]],
+    signatures: [
+      {
+        type: "script",
+        pattern: "scripts.simpleanalyticscdn.com",
+        match: "contains",
+        weight: 95,
+      },
+    ],
   },
   {
     name: "Pirsch Analytics",
@@ -2032,6 +2086,82 @@ function detect(input) {
     return normalizedHeaders.find((header) => header.name === name);
   }
 
+  function getVersionInfo(name) {
+    const hints = (page.versionHints || []).filter(
+      (item) => item.name?.toLowerCase() === name.toLowerCase() && item.version,
+    );
+
+    if (hints.length === 0) {
+      const version = getVersion(name);
+
+      if (version) {
+        return {
+          status: "confirmed",
+          version: String(version),
+          source: "header",
+          confidence: 90,
+          observations: [],
+        };
+      }
+
+      return {
+        status: "unknown",
+        version: null,
+        source: null,
+        confidence: null,
+        observations: [],
+      };
+    }
+
+    const sourcePriority = {
+      runtime: 4,
+      bundle: 4,
+      dom: 3,
+      resource: 2,
+      meta: 1,
+    };
+
+    const observations = hints.map((hint) => ({
+      version: String(hint.version),
+      source: hint.source || "unknown",
+      confidence: Number.isFinite(hint.confidence)
+        ? Math.max(0, Math.min(99, hint.confidence))
+        : 70,
+    }));
+
+    const ranked = observations
+      .map((observation) => ({
+        ...observation,
+        score:
+          observation.confidence + (sourcePriority[observation.source] || 0),
+      }))
+      .sort((a, b) => b.score - a.score);
+
+    const best = ranked[0];
+
+    const conflictingBest = ranked.some(
+      (item) => item.version !== best.version && item.score === best.score,
+    );
+
+    if (conflictingBest) {
+      return {
+        status: "ambiguous",
+        version: null,
+        source: null,
+        confidence: null,
+        observations,
+      };
+    }
+
+    return {
+      status: "confirmed",
+      version: best.version,
+      source: best.source,
+      confidence: best.confidence,
+      observations,
+    };
+  }
+
   // Extract a version only when the page or response exposes one.
   function getVersion(name) {
     const hints = page.versionHints || [];
@@ -2115,59 +2245,77 @@ function detect(input) {
   // Evaluate each technology fingerprint.
   for (const rule of RULES) {
     const evidence = [];
+    const matchedWeights = [];
 
-    for (const [kind, needle] of rule.tests) {
-      const search = needle.toLowerCase();
+    const checks = rule.signatures
+      ? rule.signatures.map((signature) => ({
+          kind: signature.type,
+          pattern: signature.pattern,
+          matchType: signature.match || "contains",
+          weight: signature.weight,
+        }))
+      : (rule.tests || []).map(([kind, pattern]) => ({
+          kind,
+          pattern,
+          matchType: "contains",
+        }));
+
+    for (const check of checks) {
+      const { kind, pattern, matchType } = check;
+
+      const search = String(pattern).toLowerCase();
       let match = false;
+
+      function matches(value) {
+        const normalized = String(value).toLowerCase();
+
+        if (matchType === "equals") {
+          return normalized === search;
+        }
+
+        return normalized.includes(search);
+      }
 
       switch (kind) {
         case "resource":
-          match = resources.some((item) => item.includes(search));
+          match = resources.some(matches);
           break;
 
         case "script":
-          match =
-            scripts.some((item) => item.includes(search)) ||
-            resources.some((item) => item.includes(search));
+          match = scripts.some(matches) || resources.some(matches);
           break;
 
         case "css":
-          match =
-            styles.some((item) => item.includes(search)) ||
-            resources.some((item) => item.includes(search));
+          match = styles.some(matches) || resources.some(matches);
           break;
 
         case "meta":
-          match = metas.some((item) => item.includes(search));
+          match = metas.some(matches);
           break;
 
         case "link":
-          match =
-            links.some((item) => item.includes(search)) ||
-            resources.some((item) => item.includes(search));
+          match = links.some(matches) || resources.some(matches);
           break;
 
         case "global":
           // A generic "$" global is too ambiguous to prove jQuery.
           if (search === "$") break;
 
-          match = globals.some(
-            (item) => item === search || item.includes(search),
-          );
+          match = globals.some(matches);
           break;
 
         case "dom":
-          match = dom.some((item) => item.includes(search));
+          match = dom.some(matches);
           break;
 
         case "cookie":
-          match = cookies.some((item) => item.includes(search));
+          match = cookies.some(matches);
           break;
 
         case "header":
           // Match headers only, never URLs or page resources.
           match = normalizedHeaders.some((header) =>
-            `${header.name}:${header.value}`.includes(search),
+            matches(`${header.name}:${header.value}`),
           );
           break;
 
@@ -2186,7 +2334,15 @@ function detect(input) {
       }
 
       if (match) {
-        evidence.push(`${kind}: ${needle}`);
+        evidence.push(`${kind}: ${pattern}`);
+
+        if (rule.signatures) {
+          const weight = Number.isFinite(check.weight)
+            ? Math.max(0, Math.min(99, check.weight))
+            : 70;
+
+          matchedWeights.push(weight);
+        }
       }
     }
 
@@ -2208,15 +2364,23 @@ function detect(input) {
       ? Math.max(0, Math.min(99, rule.confidence))
       : 70;
 
-    const confidence = Math.min(
-      99,
-      baseConfidence + Math.min(4, (uniqueEvidence.length - 1) * 2),
-    );
+    const confidence = rule.signatures
+      ? Math.round(
+          matchedWeights.reduce((total, weight) => total + weight, 0) /
+            matchedWeights.length,
+        )
+      : Math.min(
+          99,
+          baseConfidence + Math.min(4, (uniqueEvidence.length - 1) * 2),
+        );
+
+    const versionInfo = getVersionInfo(rule.name);
 
     found.push({
       ...rule,
       confidence,
-      version: getVersion(rule.name),
+      version: versionInfo.version,
+      versionInfo,
       evidence: uniqueEvidence,
     });
   }
