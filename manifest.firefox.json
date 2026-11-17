@@ -3,16 +3,8 @@
   "name": "TechLens \u2014 Technology Detector",
   "version": "1.0.0",
   "description": "Passively identify website technologies from page evidence and response headers.",
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "storage",
-    "webRequest"
-  ],
-  "host_permissions": [
-    "http://*/*",
-    "https://*/*"
-  ],
+  "permissions": ["activeTab", "scripting", "storage", "webRequest"],
+  "host_permissions": ["http://*/*", "https://*/*"],
   "browser_specific_settings": {
     "gecko": {
       "id": "techlens-detector@example.local",
@@ -29,8 +21,8 @@
     }
   },
   "background": {
-  "scripts": ["background.js"]
-},
+    "scripts": ["cveClient.js", "detector.js", "background.js"]
+  },
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

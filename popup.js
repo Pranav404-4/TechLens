@@ -76,8 +76,10 @@ function render() {
       const score = Number.isFinite(detection.confidence)
         ? Math.max(0, Math.min(99, detection.confidence))
         : 70;
+
       const level = confidenceLevel(score);
       const version = detection.version ? ` ${esc(detection.version)}` : "";
+
       const evidence = Array.isArray(detection.evidence)
         ? detection.evidence
         : [];
@@ -93,6 +95,7 @@ function render() {
             <div class="tech-name">
               ${esc(detection.name)}${version}
             </div>
+
             <div class="tech-category">
               ${esc(detection.category)}
             </div>
@@ -109,6 +112,35 @@ function render() {
             ${evidence.map((item) => `<li>${esc(item)}</li>`).join("")}
           </ul>
         </div>
+
+        ${
+          detection.id && detection.cve?.eligible
+            ? `
+          <div class="tech-cve">
+            <div class="tech-cve-heading">
+              <div>
+                <div class="tech-cve-title">Vulnerability Intelligence</div>
+                <div class="tech-cve-description">
+                  Check known vulnerabilities in the NVD database.
+                </div>
+              </div>
+              <span class="tech-cve-tag">CVE</span>
+            </div>
+
+            <button
+              type="button"
+              class="cve-check-button"
+              data-technology-id="${esc(detection.id)}"
+              aria-expanded="false"
+            >
+              Check CVEs
+            </button>
+
+            <div class="tech-cve-results" hidden></div>
+          </div>
+          `
+            : ""
+        }
       </article>
     `;
     })
@@ -478,6 +510,7 @@ async function scan() {
     });
 
     allDetections = detections.map((detection) => ({
+      id: detection.id || null,
       name: detection.name,
       category: detection.category,
       confidence: Number.isFinite(detection.confidence)
@@ -642,6 +675,124 @@ document.querySelectorAll(".view-tab").forEach((button) => {
     $("technologies-view").hidden = selectedView !== "technologies";
     $("security-view").hidden = selectedView !== "security";
   });
+});
+
+// Handle CVE lookup inside each technology card.
+$("results").addEventListener("click", async (event) => {
+  const button = event.target.closest(".cve-check-button");
+
+  if (!button) return;
+
+  const technologyId = button.dataset.technologyId;
+  const card = button.closest(".tech-card");
+  const content = card?.querySelector(".tech-cve-results");
+
+  if (!technologyId || !content) return;
+
+  // Collapse an already-open result.
+  if (!content.hidden && content.dataset.loaded === "true") {
+    content.hidden = true;
+    button.setAttribute("aria-expanded", "false");
+    return;
+  }
+
+  // Show previously loaded results without another API request.
+  if (content.dataset.loaded === "true") {
+    content.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+    return;
+  }
+
+  content.hidden = false;
+  button.setAttribute("aria-expanded", "true");
+  button.disabled = true;
+  button.textContent = "Checking…";
+
+  content.innerHTML =
+    '<p class="cve-loading">Checking the National Vulnerability Database…</p>';
+
+  try {
+    const detection = allDetections.find((item) => item.id === technologyId);
+
+    if (
+      !detection ||
+      detection.versionInfo?.status !== "confirmed" ||
+      !detection.version
+    ) {
+      throw new Error("A confirmed technology version is required.");
+    }
+
+    const response = await api.runtime.sendMessage({
+      type: "TECHLENS_GET_CVES",
+      technologyId,
+      version: detection.version,
+    });
+
+    if (!response?.success) {
+      throw new Error(response?.error || "CVE lookup failed.");
+    }
+
+    const vulnerabilities = response.data?.vulnerabilities || [];
+
+    if (vulnerabilities.length === 0) {
+      content.innerHTML = `
+        <p class="cve-empty">
+          No CVE records were returned for this product.
+          This does not mean the product is vulnerability-free.
+        </p>
+      `;
+    } else {
+      content.innerHTML = vulnerabilities
+        .map((cve) => {
+          const severity = cve.cvss?.severity || "Unknown";
+          const score = Number.isFinite(cve.cvss?.score)
+            ? ` · ${cve.cvss.score}`
+            : "";
+
+          return `
+            <article class="cve-card">
+              <div class="cve-card-heading">
+                <span class="cve-id">${esc(cve.id)}</span>
+                <span class="cve-severity">
+                  ${esc(severity)}${esc(score)}
+                </span>
+              </div>
+
+              <p>${esc(cve.description || "No description available.")}</p>
+
+              <div class="cve-meta">
+  NVD Status: ${esc(cve.status || "Unknown")}
+</div>
+
+<div class="cve-meta">
+  Version applicability:
+  <strong>
+    ${
+      cve.applicability === "affected"
+        ? "Affected"
+        : cve.applicability === "not_affected"
+          ? "Not affected"
+          : "Unconfirmed"
+    }
+  </strong>
+</div>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    content.dataset.loaded = "true";
+  } catch (error) {
+    content.innerHTML = `
+      <p class="cve-error">
+        ${esc(error.message || "CVE lookup failed.")}
+      </p>
+    `;
+  } finally {
+    button.disabled = false;
+    button.textContent = "Check CVEs";
+  }
 });
 
 // Handle category filters.

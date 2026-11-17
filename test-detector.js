@@ -422,11 +422,7 @@ assert.equal(nginxResult.version, "1.24.0");
 assert.equal(nginxResult.versionInfo.status, "confirmed");
 
 // 34. Product metadata validation
-const migratedProducts = [
-  "Fathom Analytics",
-  "Umami",
-  "Simple Analytics",
-];
+const migratedProducts = ["Fathom Analytics", "Umami", "Simple Analytics"];
 
 for (const name of migratedProducts) {
   const rule = RULES.find((item) => item.name === name);

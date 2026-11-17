@@ -2053,6 +2053,207 @@ const RULES = [
   },
 ];
 
+// ============================================================
+// TECHLENS CVE PRODUCT METADATA
+// ============================================================
+
+// Convert technology names into stable IDs.
+// Explicit IDs already defined in RULES are preserved.
+function createTechnologyId(name) {
+  return String(name)
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+// Identify the scope of a technology version.
+// This prevents frontend versions from being matched against
+// backend vulnerabilities.
+function getVersionScope(rule) {
+  const name = rule.name.toLowerCase();
+  const category = rule.category.toLowerCase();
+
+  const serverTechnologies = [
+    "asp.net",
+    "asp.net core",
+    "django",
+    "express / node.js",
+    "java / spring",
+    "laravel",
+    "php",
+    "ruby on rails",
+    "microsoft iis",
+    "openresty",
+    "envoy",
+    "gunicorn",
+    "uvicorn",
+    "kestrel",
+    "apache http server",
+    "apache traffic server",
+    "caddy",
+    "litespeed",
+    "nginx",
+    "varnish",
+  ];
+
+  if (serverTechnologies.includes(name)) {
+    return "server";
+  }
+
+  const clientCategories = [
+    "frontend framework",
+    "javascript library",
+    "javascript libraries",
+    "javascript frameworks",
+    "css framework",
+    "ui library",
+  ];
+
+  if (clientCategories.includes(category)) {
+    return "client";
+  }
+
+  return "unknown";
+}
+
+// Never invent a CPE.
+// A mapping must be explicitly reviewed and verified.
+function validateProductMetadata(product) {
+  if (!product || typeof product !== "object") {
+    return false;
+  }
+
+  const validStatuses = ["verified", "unmapped", "not_applicable"];
+  const validScopes = ["client", "server", "unknown"];
+
+  if (!validStatuses.includes(product.cpeStatus)) {
+    return false;
+  }
+
+  if (!validScopes.includes(product.versionScope)) {
+    return false;
+  }
+
+  if (!Array.isArray(product.aliases)) {
+    return false;
+  }
+
+  if (product.cpeStatus === "verified") {
+    if (
+      typeof product.cpe !== "string" ||
+      !/^cpe:2\.3:[aho]:/i.test(product.cpe)
+    ) {
+      return false;
+    }
+  } else if (product.cpe !== null) {
+    return false;
+  }
+
+  return true;
+}
+
+// Give every existing technology a consistent CVE-ready structure.
+for (const rule of RULES) {
+  if (!rule.id) {
+    rule.id = createTechnologyId(rule.name);
+  }
+
+  if (!rule.product) {
+    rule.product = {
+      vendor: null,
+      name: rule.name,
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: null,
+      aliases: [],
+      versionScope: getVersionScope(rule),
+    };
+  }
+
+  // Normalize missing optional metadata without overwriting
+  // explicitly supplied product information.
+  rule.product.vendor ??= null;
+  rule.product.name ??= rule.name;
+  rule.product.cpe ??= null;
+  rule.product.cpeStatus ??= "unmapped";
+  rule.product.purl ??= null;
+  rule.product.aliases ??= [];
+  rule.product.versionScope ??= getVersionScope(rule);
+
+  if (!validateProductMetadata(rule.product)) {
+    throw new Error(
+      `Invalid CVE product metadata for technology: ${rule.name}`,
+    );
+  }
+}
+
+// Look up a technology using its trusted catalogue ID.
+function getTechnologyById(technologyId) {
+  if (
+    typeof technologyId !== "string" ||
+    technologyId.length === 0 ||
+    technologyId.length > 100
+  ) {
+    return null;
+  }
+
+  return RULES.find((rule) => rule.id === technologyId) || null;
+}
+
+// Determine whether a detected technology is eligible for
+// a version-aware NVD CVE lookup.
+function getCveReadiness(rule, versionInfo) {
+  if (!rule || !rule.product) {
+    return {
+      eligible: false,
+      reason: "Product metadata is unavailable.",
+    };
+  }
+
+  const product = rule.product;
+
+  if (product.cpeStatus === "not_applicable") {
+    return {
+      eligible: false,
+      reason: "This technology is not applicable to CPE-based CVE lookup.",
+    };
+  }
+
+  if (product.cpeStatus !== "verified" || !product.cpe) {
+    return {
+      eligible: false,
+      reason: "No verified CPE mapping exists for this technology.",
+    };
+  }
+
+  if (versionInfo?.status === "ambiguous") {
+    return {
+      eligible: false,
+      reason: "Conflicting version observations prevent reliable CVE matching.",
+    };
+  }
+
+  if (versionInfo?.status !== "confirmed" || !versionInfo.version) {
+    return {
+      eligible: false,
+      reason: "A confirmed technology version is required.",
+    };
+  }
+
+  if (product.versionScope === "unknown") {
+    return {
+      eligible: false,
+      reason: "The version scope is unknown.",
+    };
+  }
+
+  return {
+    eligible: true,
+    reason: null,
+  };
+}
+
 function detect(input) {
   const { page = {}, headers = [] } = input || {};
 
@@ -2376,12 +2577,28 @@ function detect(input) {
 
     const versionInfo = getVersionInfo(rule.name);
 
+    const cveReadiness = rule.product
+      ? getCveReadiness(rule, versionInfo)
+      : {
+          eligible: false,
+          reason: "Product metadata is unavailable.",
+        };
+
     found.push({
       ...rule,
       confidence,
       version: versionInfo.version,
       versionInfo,
       evidence: uniqueEvidence,
+
+      // CVE intelligence metadata
+      cve: {
+        eligible: cveReadiness.eligible,
+        reason: cveReadiness.reason,
+        cpe: cveReadiness.eligible ? rule.product.cpe : null,
+        version: cveReadiness.eligible ? versionInfo.version : null,
+        versionScope: rule.product?.versionScope || "unknown",
+      },
     });
   }
 
@@ -2391,7 +2608,19 @@ function detect(input) {
 }
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { detect, RULES };
+  module.exports = {
+    detect,
+    RULES,
+    getTechnologyById,
+    getCveReadiness,
+    validateProductMetadata,
+  };
 } else {
-  globalThis.TechLensDetector = { detect, RULES };
+  globalThis.TechLensDetector = {
+    detect,
+    RULES,
+    getTechnologyById,
+    getCveReadiness,
+    validateProductMetadata,
+  };
 }

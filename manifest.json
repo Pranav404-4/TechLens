@@ -3,17 +3,8 @@
   "name": "TechLens \u2014 Technology Detector",
   "version": "1.0.0",
   "description": "Passively identify website technologies from page evidence and response headers.",
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "storage",
-    "tabs",
-    "webRequest"
-  ],
-  "host_permissions": [
-    "http://*/*",
-    "https://*/*"
-  ],
+  "permissions": ["activeTab", "scripting", "storage", "tabs", "webRequest"],
+  "host_permissions": ["http://*/*", "https://*/*"],
   "action": {
     "default_title": "TechLens Technology Detector",
     "default_popup": "popup.html",
@@ -24,7 +15,7 @@
     }
   },
   "background": {
-  "service_worker": "background.js"
+    "service_worker": "background.js"
   },
   "icons": {
     "16": "icons/icon16.png",

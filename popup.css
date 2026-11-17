@@ -617,3 +617,207 @@ footer {
 .view-panel[hidden] {
   display: none !important;
 }
+
+/* CVE Vulnerability Intelligence */
+
+.cve-results {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--panel);
+}
+
+.cve-results[hidden] {
+  display: none;
+}
+
+.cve-results h2 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.cve-description {
+  margin: 5px 0 12px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.cve-card {
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+
+.cve-card:first-child {
+  border-top: 0;
+}
+
+.cve-id {
+  color: var(--blue);
+  font-weight: 800;
+}
+
+.cve-severity {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.cve-card p {
+  color: #c3cfe2;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.cve-meta {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.cve-empty,
+.cve-loading,
+.cve-error {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.cve-error {
+  color: #ffacb9;
+}
+
+/* Technology card CVE section */
+.tech-cve {
+  margin-top: 16px;
+  padding: 13px;
+  border: 1px solid var(--border-color, #303642);
+  border-radius: 10px;
+  background: var(--card-inner, rgba(127, 127, 127, 0.04));
+}
+
+.tech-cve-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.tech-cve-title {
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.tech-cve-description {
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.5;
+  opacity: 0.7;
+}
+
+.tech-cve-tag {
+  padding: 4px 8px;
+  border: 1px solid var(--border-color, #303642);
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.cve-check-button {
+  width: 100%;
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid var(--accent-color, #668cff);
+  border-radius: 7px;
+  background: var(--accent-color, #668cff);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+
+.cve-check-button:hover {
+  opacity: 0.88;
+}
+
+.cve-check-button:active {
+  transform: scale(0.99);
+}
+
+.cve-check-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.tech-cve-results {
+  margin-top: 12px;
+}
+
+.cve-loading,
+.cve-empty,
+.cve-error {
+  padding: 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  line-height: 1.6;
+  background: rgba(127, 127, 127, 0.08);
+}
+
+.cve-error {
+  color: #e06b6b;
+}
+
+.cve-card {
+  margin-top: 8px;
+  padding: 11px;
+  border: 1px solid var(--border-color, #303642);
+  border-radius: 8px;
+}
+
+.cve-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cve-id {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cve-severity {
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.cve-card p {
+  margin: 9px 0;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.cve-meta {
+  font-size: 10px;
+  opacity: 0.65;
+}
+
+.cve-meta strong {
+  font-weight: 700;
+}
+
+.cve-meta strong:has(+ *) {
+  color: inherit;
+}
+
+.cve-card .cve-meta:last-child strong {
+  color: var(--text-secondary, #888);
+}
