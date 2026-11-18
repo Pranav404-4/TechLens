@@ -434,6 +434,23 @@
       throw new Error("A verified CPE identifier is required.");
     }
 
+    const version = options.version;
+
+    if (typeof version !== "string" || !/^\d+(?:\.\d+)*$/.test(version)) {
+      throw new Error("A supported confirmed version is required.");
+    }
+
+    const queryCpeParts = splitCpe23(product.cpe);
+
+    if (!queryCpeParts) {
+      throw new Error("Invalid product CPE identifier.");
+    }
+
+    // Use the confirmed detected version for the NVD API query.
+    queryCpeParts[5] = version;
+
+    const queryCpe = queryCpeParts.join(":");
+
     const resultsPerPage = 2000;
     const pause = Number.isFinite(options.pause)
       ? Math.max(0, options.pause)
@@ -445,7 +462,7 @@
 
     do {
       const params = new URLSearchParams({
-        cpeName: product.cpe,
+        cpeName: queryCpe,
         resultsPerPage: String(resultsPerPage),
         startIndex: String(startIndex),
       });
@@ -481,8 +498,6 @@
         await new Promise((resolve) => setTimeout(resolve, pause));
       }
     } while (startIndex < totalResults);
-
-    const version = options.version || null;
 
     const assessed = version
       ? vulnerabilities.map((cve) => ({

@@ -440,4 +440,47 @@ for (const name of migratedProducts) {
 
 console.log("PASS: Product metadata validation tests passed");
 
+// 35. WordPress verified CPE metadata
+const wordpressRule = RULES.find((item) => item.name === "WordPress");
+
+assert.ok(wordpressRule, "WordPress rule should exist");
+assert.equal(wordpressRule.product.vendor, "wordpress");
+assert.equal(wordpressRule.product.name, "wordpress");
+assert.equal(
+  wordpressRule.product.cpe,
+  "cpe:2.3:a:wordpress:wordpress:*:*:*:*:*:*:*:*",
+);
+assert.equal(wordpressRule.product.cpeStatus, "verified");
+assert.equal(wordpressRule.product.versionScope, "server");
+
+console.log("PASS: WordPress verified CPE metadata test");
+
+// 36. WordPress confirmed version reaches CVE readiness
+const wordpressDetection = detect({
+  page: {
+    meta: ["generator:wordpress"],
+    versionHints: [
+      {
+        name: "WordPress",
+        version: "6.7.1",
+        source: "meta",
+        confidence: 90,
+      },
+    ],
+  },
+}).find((item) => item.name === "WordPress");
+
+assert.ok(wordpressDetection, "WordPress detection should exist");
+assert.equal(wordpressDetection.id, "wordpress");
+assert.equal(wordpressDetection.version, "6.7.1");
+assert.equal(wordpressDetection.versionInfo.status, "confirmed");
+assert.equal(wordpressDetection.cve.eligible, true);
+assert.equal(
+  wordpressDetection.cve.cpe,
+  "cpe:2.3:a:wordpress:wordpress:*:*:*:*:*:*:*:*",
+);
+assert.equal(wordpressDetection.cve.version, "6.7.1");
+
+console.log("PASS: WordPress confirmed version reaches CVE readiness");
+
 console.log("PASS: All detector baseline and false-positive tests passed");

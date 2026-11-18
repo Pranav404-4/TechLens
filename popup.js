@@ -518,6 +518,7 @@ async function scan() {
         : 70,
       version: detection.version || null,
       versionInfo: detection.versionInfo || null,
+      cve: detection.cve || null,
       evidence: Array.isArray(detection.evidence) ? detection.evidence : [],
       sourceUrl: tab.url,
     }));

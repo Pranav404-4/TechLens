@@ -482,7 +482,17 @@ const RULES = [
   },
   {
     name: "WordPress",
+    id: "wordpress",
     category: "CMS",
+    product: {
+      vendor: "wordpress",
+      name: "wordpress",
+      cpe: "cpe:2.3:a:wordpress:wordpress:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: null,
+      aliases: [],
+      versionScope: "server",
+    },
     confidence: 98,
     tests: [
       ["meta", "generator:wordpress"],
@@ -2095,6 +2105,7 @@ function getVersionScope(rule) {
     "litespeed",
     "nginx",
     "varnish",
+    "wordpress",
   ];
 
   if (serverTechnologies.includes(name)) {

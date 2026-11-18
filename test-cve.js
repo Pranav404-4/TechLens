@@ -605,6 +605,29 @@ async function runTests() {
 
   console.log("PASS: Configuration-level negation test");
 
+  // Test 1.1: Reject a missing version.
+  await assert.rejects(
+    searchByCpe({
+      cpe: "cpe:2.3:a:example:product:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+    }),
+    /supported confirmed version is required/i,
+  );
+
+  // Test 1.2: Reject an unsupported version.
+  await assert.rejects(
+    searchByCpe(
+      {
+        cpe: "cpe:2.3:a:example:product:*:*:*:*:*:*:*:*",
+        cpeStatus: "verified",
+      },
+      { version: "latest" },
+    ),
+    /supported confirmed version is required/i,
+  );
+
+  console.log("PASS: Confirmed version validation tests");
+
   // Test 2: Reject an unverified CPE.
   await assert.rejects(
     searchByCpe({
@@ -658,13 +681,19 @@ async function runTests() {
       };
     };
 
-    const result = await searchByCpe({
-      cpe: "cpe:2.3:a:example:product:*:*:*:*:*:*:*:*",
-      cpeStatus: "verified",
-    });
+    const result = await searchByCpe(
+      {
+        cpe: "cpe:2.3:a:example:product:*:*:*:*:*:*:*:*",
+        cpeStatus: "verified",
+      },
+      { version: "1.2.3" },
+    );
 
     assert.equal(result.totalResults, 0);
-    assert.ok(requestedUrl.includes("cpeName="));
+    const requestedCpe = new URL(requestedUrl).searchParams.get("cpeName");
+
+    assert.equal(requestedCpe, "cpe:2.3:a:example:product:1.2.3:*:*:*:*:*:*:*");
+
     assert.ok(requestedUrl.includes("resultsPerPage=2000"));
     assert.ok(requestedUrl.includes("startIndex=0"));
 
@@ -722,7 +751,7 @@ async function runTests() {
         cpe: "cpe:2.3:a:example:product:*:*:*:*:*:*:*:*",
         cpeStatus: "verified",
       },
-      { pause: 0 },
+      { pause: 0, version: "1.2.3" },
     );
 
     assert.deepEqual(requestedPages, [0, 1]);
@@ -788,7 +817,7 @@ async function runTests() {
         cpe: "cpe:2.3:a:example:product:*:*:*:*:*:*:*:*",
         cpeStatus: "verified",
       },
-      { pause: 0 },
+      { pause: 0, version: "1.2.3" },
     );
 
     assert.deepEqual(malformedPageOffsets, [0, 2]);
@@ -811,10 +840,13 @@ async function runTests() {
     });
 
     await assert.rejects(
-      searchByCpe({
-        cpe: "cpe:2.3:a:example:product:*:*:*:*:*:*:*:*",
-        cpeStatus: "verified",
-      }),
+      searchByCpe(
+        {
+          cpe: "cpe:2.3:a:example:product:*:*:*:*:*:*:*:*",
+          cpeStatus: "verified",
+        },
+        { version: "1.2.3" },
+      ),
       /rate limit reached/i,
     );
 
@@ -824,10 +856,13 @@ async function runTests() {
     });
 
     await assert.rejects(
-      searchByCpe({
-        cpe: "cpe:2.3:a:example:product:*:*:*:*:*:*:*:*",
-        cpeStatus: "verified",
-      }),
+      searchByCpe(
+        {
+          cpe: "cpe:2.3:a:example:product:*:*:*:*:*:*:*:*",
+          cpeStatus: "verified",
+        },
+        { version: "1.2.3" },
+      ),
       /rate limit reached/i,
     );
 
@@ -837,10 +872,13 @@ async function runTests() {
     });
 
     await assert.rejects(
-      searchByCpe({
-        cpe: "cpe:2.3:a:example:product:*:*:*:*:*:*:*:*",
-        cpeStatus: "verified",
-      }),
+      searchByCpe(
+        {
+          cpe: "cpe:2.3:a:example:product:*:*:*:*:*:*:*:*",
+          cpeStatus: "verified",
+        },
+        { version: "1.2.3" },
+      ),
       /HTTP 500/,
     );
 
