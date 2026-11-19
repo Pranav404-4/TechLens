@@ -126,6 +126,81 @@ assert.ok(
   }).includes("Django"),
 );
 
+// 14.1. Django verified CPE metadata
+const djangoRule = RULES.find((item) => item.name === "Django");
+
+assert.ok(djangoRule, "Django rule should exist");
+assert.equal(djangoRule.id, "django");
+assert.equal(djangoRule.product.vendor, "djangoproject");
+assert.equal(djangoRule.product.name, "django");
+assert.equal(
+  djangoRule.product.cpe,
+  "cpe:2.3:a:djangoproject:django:*:*:*:*:*:*:*:*",
+);
+assert.equal(djangoRule.product.cpeStatus, "verified");
+assert.equal(djangoRule.product.versionScope, "server");
+
+console.log("PASS: Django verified CPE metadata");
+
+// Laravel verified CPE metadata
+const laravelRule = RULES.find((item) => item.name === "Laravel");
+
+assert.ok(laravelRule, "Laravel rule should exist");
+assert.equal(laravelRule.id, "laravel");
+assert.equal(laravelRule.product.vendor, "laravel");
+assert.equal(laravelRule.product.name, "framework");
+assert.equal(
+  laravelRule.product.cpe,
+  "cpe:2.3:a:laravel:framework:*:*:*:*:*:*:*:*",
+);
+assert.equal(laravelRule.product.cpeStatus, "verified");
+assert.equal(laravelRule.product.purl, "pkg:composer/laravel/framework");
+assert.equal(laravelRule.product.versionScope, "server");
+
+console.log("PASS: Laravel verified CPE metadata");
+
+// Laravel cookie detection must not invent a version
+const laravelDetection = detect({
+  page: {
+    cookies: ["laravel_session"],
+  },
+}).find((item) => item.name === "Laravel");
+
+assert.ok(laravelDetection, "Laravel should be detected");
+assert.equal(laravelDetection.id, "laravel");
+assert.equal(laravelDetection.version, null);
+assert.equal(laravelDetection.versionInfo.status, "unknown");
+assert.equal(laravelDetection.cve.eligible, false);
+assert.equal(laravelDetection.cve.cpe, null);
+assert.equal(laravelDetection.cve.version, null);
+assert.equal(
+  laravelDetection.cve.reason,
+  "A confirmed technology version is required.",
+);
+
+console.log("PASS: Laravel cookie detection does not invent a version");
+
+// 14.2. Django cookie detection must not invent a version
+const djangoDetection = detect({
+  page: {
+    cookies: ["django_language"],
+  },
+}).find((item) => item.name === "Django");
+
+assert.ok(djangoDetection, "Django should be detected");
+assert.equal(djangoDetection.id, "django");
+assert.equal(djangoDetection.version, null);
+assert.equal(djangoDetection.versionInfo.status, "unknown");
+assert.equal(djangoDetection.cve.eligible, false);
+assert.equal(djangoDetection.cve.cpe, null);
+assert.equal(djangoDetection.cve.version, null);
+assert.equal(
+  djangoDetection.cve.reason,
+  "A confirmed technology version is required.",
+);
+
+console.log("PASS: Django cookie detection does not invent a version");
+
 // 15. Laravel: specific cookie identifies Laravel
 assert.ok(
   names({
@@ -482,5 +557,204 @@ assert.equal(
 assert.equal(wordpressDetection.cve.version, "6.7.1");
 
 console.log("PASS: WordPress confirmed version reaches CVE readiness");
+
+// 37. Nginx confirmed version reaches CVE readiness
+const nginxDetection = detect({
+  headers: [
+    {
+      name: "server",
+      value: "nginx/1.24.0",
+    },
+  ],
+}).find((item) => item.name === "Nginx");
+
+assert.ok(nginxDetection, "Nginx detection should exist");
+assert.equal(nginxDetection.id, "nginx");
+assert.equal(nginxDetection.version, "1.24.0");
+assert.equal(nginxDetection.versionInfo.status, "confirmed");
+assert.equal(nginxDetection.cve.eligible, true);
+assert.equal(nginxDetection.cve.cpe, "cpe:2.3:a:f5:nginx:*:*:*:*:*:*:*:*");
+assert.equal(nginxDetection.cve.version, "1.24.0");
+
+console.log("PASS: Nginx confirmed version reaches CVE readiness");
+
+// 38. Apache HTTP Server confirmed version reaches CVE readiness
+const apacheDetection = detect({
+  headers: [
+    {
+      name: "server",
+      value: "Apache/2.4.58",
+    },
+  ],
+}).find((item) => item.name === "Apache HTTP Server");
+
+assert.ok(apacheDetection, "Apache HTTP Server detection should exist");
+assert.equal(apacheDetection.id, "apache-http-server");
+assert.equal(apacheDetection.version, "2.4.58");
+assert.equal(apacheDetection.versionInfo.status, "confirmed");
+assert.equal(apacheDetection.cve.eligible, true);
+assert.equal(
+  apacheDetection.cve.cpe,
+  "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*",
+);
+assert.equal(apacheDetection.cve.version, "2.4.58");
+
+console.log("PASS: Apache HTTP Server confirmed version reaches CVE readiness");
+
+// 39. PHP confirmed version reaches CVE readiness
+const phpDetection = detect({
+  headers: [
+    {
+      name: "x-powered-by",
+      value: "PHP/8.2.12",
+    },
+  ],
+}).find((item) => item.name === "PHP");
+
+assert.ok(phpDetection, "PHP detection should exist");
+assert.equal(phpDetection.id, "php");
+assert.equal(phpDetection.version, "8.2.12");
+assert.equal(phpDetection.versionInfo.status, "confirmed");
+assert.equal(phpDetection.cve.eligible, true);
+assert.equal(phpDetection.cve.cpe, "cpe:2.3:a:php:php:*:*:*:*:*:*:*:*");
+assert.equal(phpDetection.cve.version, "8.2.12");
+
+console.log("PASS: PHP confirmed version reaches CVE readiness");
+
+// 40. PHP session cookie does not invent a version
+const phpCookieDetection = detect({
+  headers: [],
+  page: {
+    cookies: ["PHPSESSID=abc123"],
+  },
+}).find((item) => item.name === "PHP");
+
+assert.ok(phpCookieDetection, "PHP cookie detection should exist");
+assert.equal(phpCookieDetection.version, null);
+assert.equal(phpCookieDetection.cve.eligible, false);
+
+console.log("PASS: PHP session cookie does not invent a version");
+
+// 41. Drupal confirmed version reaches CVE readiness
+const drupalDetection = detect({
+  page: {
+    meta: ["generator:drupal"],
+    versionHints: [
+      {
+        name: "Drupal",
+        version: "10.3.6",
+        source: "meta",
+        confidence: 90,
+      },
+    ],
+  },
+}).find((item) => item.name === "Drupal");
+
+assert.ok(drupalDetection, "Drupal detection should exist");
+assert.equal(drupalDetection.id, "drupal");
+assert.equal(drupalDetection.version, "10.3.6");
+assert.equal(drupalDetection.versionInfo.status, "confirmed");
+assert.equal(drupalDetection.cve.eligible, true);
+assert.equal(
+  drupalDetection.cve.cpe,
+  "cpe:2.3:a:drupal:drupal:*:*:*:*:*:*:*:*",
+);
+assert.equal(drupalDetection.cve.version, "10.3.6");
+
+console.log("PASS: Drupal confirmed version reaches CVE readiness");
+
+// 42. Joomla confirmed version reaches CVE readiness
+const joomlaDetection = detect({
+  page: {
+    meta: ["generator:joomla"],
+    versionHints: [
+      {
+        name: "Joomla",
+        version: "5.2.3",
+        source: "meta",
+        confidence: 90,
+      },
+    ],
+  },
+}).find((item) => item.name === "Joomla");
+
+assert.ok(joomlaDetection, "Joomla detection should exist");
+assert.equal(joomlaDetection.id, "joomla");
+assert.equal(joomlaDetection.version, "5.2.3");
+assert.equal(joomlaDetection.versionInfo.status, "confirmed");
+assert.equal(joomlaDetection.cve.eligible, true);
+assert.equal(
+  joomlaDetection.cve.cpe,
+  "cpe:2.3:a:joomla:joomla\\!:*:*:*:*:*:*:*:*",
+);
+assert.equal(joomlaDetection.cve.version, "5.2.3");
+
+console.log("PASS: Joomla confirmed version reaches CVE readiness");
+
+// 43. Magento confirmed version reaches CVE readiness
+const magentoDetection = detect({
+  page: {
+    scripts: ["/static/frontend/"],
+    globals: ["Magento"],
+    versionHints: [
+      {
+        name: "Magento",
+        version: "2.4.7",
+        source: "meta",
+        confidence: 90,
+      },
+    ],
+  },
+}).find((item) => item.name === "Magento");
+
+assert.ok(magentoDetection, "Magento detection should exist");
+assert.equal(magentoDetection.id, "magento");
+assert.equal(magentoDetection.version, "2.4.7");
+assert.equal(magentoDetection.versionInfo.status, "confirmed");
+assert.equal(magentoDetection.cve.eligible, true);
+assert.equal(
+  magentoDetection.cve.cpe,
+  "cpe:2.3:a:adobe:magento:*:*:*:*:open_source:*:*:*",
+);
+assert.equal(magentoDetection.cve.version, "2.4.7");
+
+console.log("PASS: Magento confirmed version reaches CVE readiness");
+
+// 38. Apache Tomcat detection without misidentifying connector version
+const tomcatDetection = detect({
+  headers: [
+    {
+      name: "server",
+      value: "Apache-Coyote/1.1",
+    },
+  ],
+}).find((item) => item.name === "Apache Tomcat");
+
+assert.ok(tomcatDetection, "Apache Tomcat detection should exist");
+assert.equal(tomcatDetection.id, "apache-tomcat");
+assert.equal(tomcatDetection.versionInfo.status, "unknown");
+assert.equal(tomcatDetection.cve.eligible, false);
+assert.equal(tomcatDetection.cve.cpe, null);
+assert.equal(tomcatDetection.cve.version, null);
+assert.equal(tomcatDetection.cve.eligible, false);
+assert.equal(
+  tomcatDetection.cve.reason,
+  "A confirmed technology version is required.",
+);
+
+// Verify the CPE remains stored in the trusted detector catalogue.
+const tomcatRule = RULES.find((item) => item.id === "apache-tomcat");
+
+assert.ok(tomcatRule, "Apache Tomcat rule should exist");
+assert.equal(tomcatRule.product.cpe, "cpe:2.3:a:apache:tomcat:*:*:*:*:*:*:*:*");
+assert.equal(tomcatRule.product.cpeStatus, "verified");
+
+console.log(
+  "PASS: Apache Tomcat detected without inventing a software version",
+);
+
+console.log(
+  "PASS: Apache Tomcat detected without treating Coyote version as Tomcat version",
+);
 
 console.log("PASS: All detector baseline and false-positive tests passed");

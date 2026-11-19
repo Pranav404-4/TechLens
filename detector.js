@@ -261,7 +261,17 @@ const RULES = [
   },
   {
     name: "Django",
+    id: "django",
     category: "Backend framework",
+    product: {
+      vendor: "djangoproject",
+      name: "django",
+      cpe: "cpe:2.3:a:djangoproject:django:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:pypi/django",
+      aliases: [],
+      versionScope: "server",
+    },
     confidence: 82,
     tests: [
       ["cookie", "csrftoken"],
@@ -285,7 +295,17 @@ const RULES = [
   },
   {
     name: "Laravel",
+    id: "laravel",
     category: "Backend framework",
+    product: {
+      vendor: "laravel",
+      name: "framework",
+      cpe: "cpe:2.3:a:laravel:framework:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:composer/laravel/framework",
+      aliases: [],
+      versionScope: "server",
+    },
     confidence: 85,
     tests: [
       ["cookie", "laravel_session"],
@@ -294,7 +314,17 @@ const RULES = [
   },
   {
     name: "PHP",
+    id: "php",
     category: "Backend clue",
+    product: {
+      vendor: "php",
+      name: "php",
+      cpe: "cpe:2.3:a:php:php:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: null,
+      aliases: [],
+      versionScope: "server",
+    },
     confidence: 75,
     tests: [
       ["header", "x-powered-by:php"],
@@ -391,9 +421,20 @@ const RULES = [
       ["link", "catalog/view/theme/"],
     ],
   },
+
   {
     name: "Drupal",
+    id: "drupal",
     category: "CMS",
+    product: {
+      vendor: "drupal",
+      name: "drupal",
+      cpe: "cpe:2.3:a:drupal:drupal:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: null,
+      aliases: [],
+      versionScope: "server",
+    },
     confidence: 95,
     tests: [
       ["meta", "generator:drupal"],
@@ -401,6 +442,7 @@ const RULES = [
       ["global", "Drupal"],
     ],
   },
+
   {
     name: "Ghost",
     category: "CMS",
@@ -413,7 +455,17 @@ const RULES = [
   },
   {
     name: "Joomla",
+    id: "joomla",
     category: "CMS",
+    product: {
+      vendor: "joomla",
+      name: "joomla!",
+      cpe: "cpe:2.3:a:joomla:joomla\\!:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: null,
+      aliases: [],
+      versionScope: "server",
+    },
     confidence: 92,
     tests: [
       ["meta", "generator:joomla"],
@@ -423,7 +475,17 @@ const RULES = [
   },
   {
     name: "Magento",
+    id: "magento",
     category: "E-commerce",
+    product: {
+      vendor: "adobe",
+      name: "magento",
+      cpe: "cpe:2.3:a:adobe:magento:*:*:*:*:open_source:*:*:*",
+      cpeStatus: "verified",
+      purl: null,
+      aliases: [],
+      versionScope: "server",
+    },
     confidence: 95,
     tests: [
       ["script", "/static/frontend/"],
@@ -976,8 +1038,34 @@ const RULES = [
     tests: [["header", "server:kestrel"]],
   },
   {
+    name: "Apache Tomcat",
+    id: "apache-tomcat",
+    category: "Application server",
+    product: {
+      vendor: "apache",
+      name: "tomcat",
+      cpe: "cpe:2.3:a:apache:tomcat:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: null,
+      aliases: [],
+      versionScope: "server",
+    },
+    confidence: 90,
+    tests: [["header", "server:apache-coyote"]],
+  },
+  {
     name: "Apache HTTP Server",
+    id: "apache-http-server",
     category: "Web server",
+    product: {
+      vendor: "apache",
+      name: "http_server",
+      cpe: "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: null,
+      aliases: [],
+      versionScope: "server",
+    },
     confidence: 85,
     tests: [["header", "server:apache"]],
   },
@@ -1001,7 +1089,17 @@ const RULES = [
   },
   {
     name: "Nginx",
+    id: "nginx",
     category: "Web server",
+    product: {
+      vendor: "f5",
+      name: "nginx",
+      cpe: "cpe:2.3:a:f5:nginx:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: null,
+      aliases: [],
+      versionScope: "server",
+    },
     confidence: 85,
     tests: [["header", "server:nginx"]],
   },

@@ -702,6 +702,478 @@ async function runTests() {
     globalThis.fetch = originalFetch;
   }
 
+  // Test 4.0: Verify Nginx CPE identity and concrete NVD query
+  const nginxProduct = {
+    cpe: "cpe:2.3:a:f5:nginx:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(nginxProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:f5:nginx:*:*:*:*:*:*:*:*",
+      nginxProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchNginx = globalThis.fetch;
+  let nginxRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      nginxRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    const nginxCveResult = await searchByCpe(nginxProduct, {
+      version: "1.24.0",
+      pause: 0,
+    });
+
+    const nginxRequestedCpe = new URL(nginxRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(nginxCveResult.totalResults, 0);
+    assert.equal(nginxRequestedCpe, "cpe:2.3:a:f5:nginx:1.24.0:*:*:*:*:*:*:*");
+
+    console.log("PASS: Nginx CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchNginx;
+  }
+
+  // Test 4.0.1: Verify Apache HTTP Server CPE identity and concrete NVD query
+  const apacheNvdProduct = {
+    cpe: "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(apacheNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*",
+      apacheNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchApache = globalThis.fetch;
+  let apacheRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      apacheRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    const apacheCveResult = await searchByCpe(apacheNvdProduct, {
+      version: "2.4.58",
+      pause: 0,
+    });
+
+    const apacheRequestedCpe = new URL(apacheRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(apacheCveResult.totalResults, 0);
+    assert.equal(
+      apacheRequestedCpe,
+      "cpe:2.3:a:apache:http_server:2.4.58:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Apache HTTP Server CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchApache;
+  }
+
+  // Test 4.0.2: Verify PHP CPE identity and concrete NVD query
+  const phpNvdProduct = {
+    cpe: "cpe:2.3:a:php:php:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(phpNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:php:php:*:*:*:*:*:*:*:*",
+      phpNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchPhp = globalThis.fetch;
+  let phpRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      phpRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    const phpCveResult = await searchByCpe(phpNvdProduct, {
+      version: "8.2.12",
+      pause: 0,
+    });
+
+    const phpRequestedCpe = new URL(phpRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(phpCveResult.totalResults, 0);
+    assert.equal(phpRequestedCpe, "cpe:2.3:a:php:php:8.2.12:*:*:*:*:*:*:*");
+
+    console.log("PASS: PHP CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchPhp;
+  }
+
+  // Test 4.0.3: Verify Drupal CPE identity and concrete NVD query
+  const drupalNvdProduct = {
+    cpe: "cpe:2.3:a:drupal:drupal:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(drupalNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:drupal:drupal:*:*:*:*:*:*:*:*",
+      drupalNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchDrupal = globalThis.fetch;
+  let drupalRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      drupalRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    const drupalCveResult = await searchByCpe(drupalNvdProduct, {
+      version: "10.3.6",
+      pause: 0,
+    });
+
+    const drupalRequestedCpe = new URL(drupalRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(drupalCveResult.totalResults, 0);
+    assert.equal(
+      drupalRequestedCpe,
+      "cpe:2.3:a:drupal:drupal:10.3.6:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Drupal CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchDrupal;
+  }
+
+  // Test 4.0.4: Verify Joomla CPE identity and concrete NVD query
+  const joomlaNvdProduct = {
+    cpe: "cpe:2.3:a:joomla:joomla\\!:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(joomlaNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:joomla:joomla\\!:*:*:*:*:*:*:*:*",
+      joomlaNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchJoomla = globalThis.fetch;
+  let joomlaRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      joomlaRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    const joomlaCveResult = await searchByCpe(joomlaNvdProduct, {
+      version: "5.2.3",
+      pause: 0,
+    });
+
+    const joomlaRequestedCpe = new URL(joomlaRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(joomlaCveResult.totalResults, 0);
+    assert.equal(
+      joomlaRequestedCpe,
+      "cpe:2.3:a:joomla:joomla\\!:5.2.3:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Joomla CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchJoomla;
+  }
+
+  // Test 4.0.5: Verify Magento CPE identity and concrete NVD query
+  const magentoNvdProduct = {
+    cpe: "cpe:2.3:a:adobe:magento:*:*:*:*:open_source:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(magentoNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:adobe:magento:*:*:*:*:open_source:*:*:*",
+      magentoNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchMagento = globalThis.fetch;
+  let magentoRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      magentoRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    const magentoCveResult = await searchByCpe(magentoNvdProduct, {
+      version: "2.4.7",
+      pause: 0,
+    });
+
+    const magentoRequestedCpe = new URL(magentoRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(magentoCveResult.totalResults, 0);
+    assert.equal(
+      magentoRequestedCpe,
+      "cpe:2.3:a:adobe:magento:2.4.7:*:*:*:open_source:*:*:*",
+    );
+
+    console.log("PASS: Magento CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchMagento;
+  }
+
+  // Test 4.0.6: Verify Apache Tomcat CPE identity and concrete NVD query
+  const tomcatNvdProduct = {
+    cpe: "cpe:2.3:a:apache:tomcat:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(tomcatNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:apache:tomcat:*:*:*:*:*:*:*:*",
+      tomcatNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchTomcat = globalThis.fetch;
+  let tomcatRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      tomcatRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    // Synthetic version used only to verify CPE query construction.
+    const tomcatCveResult = await searchByCpe(tomcatNvdProduct, {
+      version: "10.1.36",
+      pause: 0,
+    });
+
+    const tomcatRequestedCpe = new URL(tomcatRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(tomcatCveResult.totalResults, 0);
+    assert.equal(
+      tomcatRequestedCpe,
+      "cpe:2.3:a:apache:tomcat:10.1.36:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Apache Tomcat CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchTomcat;
+  }
+
+  // Test 4.0.7: Verify Django CPE identity and concrete NVD query
+  const djangoNvdProduct = {
+    cpe: "cpe:2.3:a:djangoproject:django:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(djangoNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:djangoproject:django:*:*:*:*:*:*:*:*",
+      djangoNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchDjango = globalThis.fetch;
+  let djangoRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      djangoRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    const djangoCveResult = await searchByCpe(djangoNvdProduct, {
+      version: "5.1.6",
+      pause: 0,
+    });
+
+    const djangoRequestedCpe = new URL(djangoRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(djangoCveResult.totalResults, 0);
+    assert.equal(
+      djangoRequestedCpe,
+      "cpe:2.3:a:djangoproject:django:5.1.6:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Django CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchDjango;
+  }
+
+  // Test 4.0.8: Verify Laravel CPE identity and concrete NVD query
+  const laravelNvdProduct = {
+    cpe: "cpe:2.3:a:laravel:framework:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(laravelNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:laravel:framework:*:*:*:*:*:*:*:*",
+      laravelNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchLaravel = globalThis.fetch;
+  let laravelRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      laravelRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    const laravelCveResult = await searchByCpe(laravelNvdProduct, {
+      version: "12.22.0",
+      pause: 0,
+    });
+
+    const laravelRequestedCpe = new URL(laravelRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(laravelCveResult.totalResults, 0);
+    assert.equal(
+      laravelRequestedCpe,
+      "cpe:2.3:a:laravel:framework:12.22.0:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Laravel CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchLaravel;
+  }
+
   // Test 4.1: Fetch multiple NVD result pages.
   const originalFetchPagination = globalThis.fetch;
   const requestedPages = [];
