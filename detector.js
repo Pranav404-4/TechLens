@@ -279,6 +279,22 @@ const RULES = [
     ],
   },
   {
+    name: "Flask",
+    id: "flask",
+    category: "Backend framework",
+    product: {
+      vendor: "palletsprojects",
+      name: "flask",
+      cpe: "cpe:2.3:a:palletsprojects:flask:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:pypi/flask",
+      aliases: [],
+      versionScope: "server",
+    },
+    confidence: 65,
+    tests: [["cookie", "session"]],
+  },
+  {
     name: "Express / Node.js",
     category: "Backend clue",
     confidence: 75,
@@ -313,6 +329,58 @@ const RULES = [
     ],
   },
   {
+    name: "Symfony",
+    id: "symfony",
+    category: "Backend framework",
+    product: {
+      vendor: "symfony",
+      name: "symfony",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:composer/symfony/symfony",
+      aliases: [],
+      versionScope: "server",
+    },
+    confidence: 95,
+    signatures: [
+      {
+        type: "header",
+        pattern: "x-debug-token",
+        match: "contains",
+        weight: 95,
+      },
+      {
+        type: "header",
+        pattern: "x-debug-token-link",
+        match: "contains",
+        weight: 95,
+      },
+    ],
+  },
+  {
+    name: "Express.js",
+    id: "express",
+    category: "Backend framework",
+    product: {
+      vendor: "expressjs",
+      name: "express",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:npm/express",
+      aliases: [],
+      versionScope: "server",
+    },
+    confidence: 90,
+    signatures: [
+      {
+        type: "header",
+        pattern: "x-powered-by:express",
+        match: "contains",
+        weight: 90,
+      },
+    ],
+  },
+  {
     name: "PHP",
     id: "php",
     category: "Backend clue",
@@ -330,6 +398,38 @@ const RULES = [
       ["header", "x-powered-by:php"],
       ["cookie", "phpsessid"],
     ],
+  },
+  {
+    name: "CodeIgniter",
+    id: "codeigniter",
+    category: "Backend framework",
+    product: {
+      vendor: "codeigniter",
+      name: "codeigniter",
+      cpe: "cpe:2.3:a:codeigniter:codeigniter:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: null,
+      aliases: [],
+      versionScope: "server",
+    },
+    confidence: 75,
+    tests: [["cookie", "ci_session"]],
+  },
+  {
+    name: "CakePHP",
+    id: "cakephp",
+    category: "Backend framework",
+    product: {
+      vendor: "cakephp",
+      name: "cakephp",
+      cpe: "cpe:2.3:a:cakephp:cakephp:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:composer/cakephp/cakephp",
+      aliases: [],
+      versionScope: "server",
+    },
+    confidence: 75,
+    tests: [["cookie", "CAKEPHP"]],
   },
   {
     name: "Ruby on Rails",
@@ -817,12 +917,45 @@ const RULES = [
   },
   {
     name: "Nuxt",
+    id: "nuxt",
     category: "Frontend framework",
+    product: {
+      vendor: "nuxt",
+      name: "nuxt",
+      cpe: "cpe:2.3:a:nuxt:nuxt:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:npm/nuxt",
+      aliases: [],
+      versionScope: "client",
+    },
     confidence: 98,
     tests: [
       ["dom", "#__nuxt"],
       ["script", "/_nuxt/"],
       ["global", "__NUXT__"],
+    ],
+  },
+  {
+    name: "NestJS",
+    id: "nestjs",
+    category: "Backend framework",
+    product: {
+      vendor: "nestjs",
+      name: "nestjs",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:npm/@nestjs/core",
+      aliases: [],
+      versionScope: "server",
+    },
+    confidence: 90,
+    signatures: [
+      {
+        type: "resource",
+        pattern: "@nestjs/",
+        match: "contains",
+        weight: 90,
+      },
     ],
   },
   {
@@ -2347,6 +2480,8 @@ function getCveReadiness(rule, versionInfo) {
     return {
       eligible: false,
       reason: "A confirmed technology version is required.",
+      cpe: product.cpe,
+      version: null,
     };
   }
 
@@ -2704,7 +2839,7 @@ function detect(input) {
       cve: {
         eligible: cveReadiness.eligible,
         reason: cveReadiness.reason,
-        cpe: cveReadiness.eligible ? rule.product.cpe : null,
+        cpe: rule.product?.cpeStatus === "verified" ? rule.product.cpe : null,
         version: cveReadiness.eligible ? versionInfo.version : null,
         versionScope: rule.product?.versionScope || "unknown",
       },

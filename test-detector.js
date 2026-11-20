@@ -171,7 +171,10 @@ assert.equal(laravelDetection.id, "laravel");
 assert.equal(laravelDetection.version, null);
 assert.equal(laravelDetection.versionInfo.status, "unknown");
 assert.equal(laravelDetection.cve.eligible, false);
-assert.equal(laravelDetection.cve.cpe, null);
+assert.equal(
+  laravelDetection.cve.cpe,
+  "cpe:2.3:a:laravel:framework:*:*:*:*:*:*:*:*",
+);
 assert.equal(laravelDetection.cve.version, null);
 assert.equal(
   laravelDetection.cve.reason,
@@ -179,6 +182,103 @@ assert.equal(
 );
 
 console.log("PASS: Laravel cookie detection does not invent a version");
+
+// Symfony metadata validation
+const symfonyRule = RULES.find((item) => item.name === "Symfony");
+
+assert.ok(symfonyRule, "Symfony rule should exist");
+assert.equal(symfonyRule.id, "symfony");
+assert.equal(symfonyRule.product.vendor, "symfony");
+assert.equal(symfonyRule.product.name, "symfony");
+assert.equal(symfonyRule.product.cpe, null);
+assert.equal(symfonyRule.product.cpeStatus, "unmapped");
+assert.equal(symfonyRule.product.purl, "pkg:composer/symfony/symfony");
+assert.equal(symfonyRule.product.versionScope, "server");
+
+console.log("PASS: Symfony metadata");
+
+// Symfony X-Debug-Token detection must not invent a version
+const symfonyTokenDetection = detect({
+  page: {},
+  headers: [{ name: "X-Debug-Token", value: "abc123" }],
+}).find((item) => item.name === "Symfony");
+
+assert.ok(
+  symfonyTokenDetection,
+  "Symfony should be detected from X-Debug-Token",
+);
+assert.equal(symfonyTokenDetection.id, "symfony");
+assert.equal(symfonyTokenDetection.version, null);
+assert.equal(symfonyTokenDetection.versionInfo.status, "unknown");
+assert.equal(symfonyTokenDetection.cve.eligible, false);
+assert.equal(symfonyTokenDetection.cve.cpe, null);
+assert.equal(symfonyTokenDetection.cve.version, null);
+
+console.log("PASS: Symfony X-Debug-Token detection");
+
+// Symfony X-Debug-Token-Link detection must not invent a version
+const symfonyLinkDetection = detect({
+  page: {},
+  headers: [
+    {
+      name: "X-Debug-Token-Link",
+      value: "/_profiler/abc123",
+    },
+  ],
+}).find((item) => item.name === "Symfony");
+
+assert.ok(
+  symfonyLinkDetection,
+  "Symfony should be detected from X-Debug-Token-Link",
+);
+assert.equal(symfonyLinkDetection.id, "symfony");
+assert.equal(symfonyLinkDetection.version, null);
+assert.equal(symfonyLinkDetection.versionInfo.status, "unknown");
+assert.equal(symfonyLinkDetection.cve.eligible, false);
+assert.equal(symfonyLinkDetection.cve.cpe, null);
+assert.equal(symfonyLinkDetection.cve.version, null);
+
+console.log("PASS: Symfony X-Debug-Token-Link detection");
+
+// CodeIgniter metadata validation
+const codeigniterRule = RULES.find((item) => item.name === "CodeIgniter");
+
+assert.ok(codeigniterRule, "CodeIgniter rule should exist");
+assert.equal(codeigniterRule.id, "codeigniter");
+assert.equal(codeigniterRule.product.vendor, "codeigniter");
+assert.equal(codeigniterRule.product.name, "codeigniter");
+assert.equal(
+  codeigniterRule.product.cpe,
+  "cpe:2.3:a:codeigniter:codeigniter:*:*:*:*:*:*:*:*",
+);
+assert.equal(codeigniterRule.product.cpeStatus, "verified");
+assert.equal(codeigniterRule.product.purl, null);
+assert.equal(codeigniterRule.product.versionScope, "server");
+
+console.log("PASS: CodeIgniter metadata");
+
+// CodeIgniter cookie detection must not invent a version
+const codeigniterDetection = detect({
+  page: {
+    cookies: ["ci_session"],
+  },
+}).find((item) => item.name === "CodeIgniter");
+
+assert.ok(codeigniterDetection, "CodeIgniter should be detected");
+assert.equal(codeigniterDetection.id, "codeigniter");
+assert.equal(codeigniterDetection.version, null);
+assert.equal(codeigniterDetection.versionInfo.status, "unknown");
+assert.equal(codeigniterDetection.cve.eligible, false);
+assert.equal(
+  codeigniterDetection.cve.cpe,
+  "cpe:2.3:a:codeigniter:codeigniter:*:*:*:*:*:*:*:*",
+);
+assert.equal(codeigniterDetection.cve.version, null);
+assert.equal(
+  codeigniterDetection.cve.reason,
+  "A confirmed technology version is required.",
+);
+console.log("PASS: CodeIgniter cookie detection does not invent a version");
 
 // 14.2. Django cookie detection must not invent a version
 const djangoDetection = detect({
@@ -192,7 +292,10 @@ assert.equal(djangoDetection.id, "django");
 assert.equal(djangoDetection.version, null);
 assert.equal(djangoDetection.versionInfo.status, "unknown");
 assert.equal(djangoDetection.cve.eligible, false);
-assert.equal(djangoDetection.cve.cpe, null);
+assert.equal(
+  djangoDetection.cve.cpe,
+  "cpe:2.3:a:djangoproject:django:*:*:*:*:*:*:*:*",
+);
 assert.equal(djangoDetection.cve.version, null);
 assert.equal(
   djangoDetection.cve.reason,
@@ -200,6 +303,30 @@ assert.equal(
 );
 
 console.log("PASS: Django cookie detection does not invent a version");
+
+// 14.3. Flask cookie detection must not invent a version
+const flaskDetection = detect({
+  page: {
+    cookies: ["session"],
+  },
+}).find((item) => item.name === "Flask");
+
+assert.ok(flaskDetection, "Flask should be detected");
+assert.equal(flaskDetection.id, "flask");
+assert.equal(flaskDetection.version, null);
+assert.equal(flaskDetection.versionInfo.status, "unknown");
+assert.equal(flaskDetection.cve.eligible, false);
+assert.equal(
+  flaskDetection.cve.cpe,
+  "cpe:2.3:a:palletsprojects:flask:*:*:*:*:*:*:*:*",
+);
+assert.equal(flaskDetection.cve.version, null);
+assert.equal(
+  flaskDetection.cve.reason,
+  "A confirmed technology version is required.",
+);
+
+console.log("PASS: Flask cookie detection does not invent a version");
 
 // 15. Laravel: specific cookie identifies Laravel
 assert.ok(
@@ -734,7 +861,10 @@ assert.ok(tomcatDetection, "Apache Tomcat detection should exist");
 assert.equal(tomcatDetection.id, "apache-tomcat");
 assert.equal(tomcatDetection.versionInfo.status, "unknown");
 assert.equal(tomcatDetection.cve.eligible, false);
-assert.equal(tomcatDetection.cve.cpe, null);
+assert.equal(
+  tomcatDetection.cve.cpe,
+  "cpe:2.3:a:apache:tomcat:*:*:*:*:*:*:*:*",
+);
 assert.equal(tomcatDetection.cve.version, null);
 assert.equal(tomcatDetection.cve.eligible, false);
 assert.equal(
@@ -756,5 +886,102 @@ console.log(
 console.log(
   "PASS: Apache Tomcat detected without treating Coyote version as Tomcat version",
 );
+
+// Express.js metadata validation
+const expressRule = RULES.find((item) => item.name === "Express.js");
+
+assert.ok(expressRule, "Express.js rule should exist");
+assert.equal(expressRule.id, "express");
+assert.equal(expressRule.product.vendor, "expressjs");
+assert.equal(expressRule.product.name, "express");
+assert.equal(expressRule.product.cpe, null);
+assert.equal(expressRule.product.cpeStatus, "unmapped");
+assert.equal(expressRule.product.purl, "pkg:npm/express");
+assert.equal(expressRule.product.versionScope, "server");
+
+console.log("PASS: Express.js metadata");
+
+// Express.js X-Powered-By detection must not invent a version
+const expressDetection = detect({
+  page: {},
+  headers: [{ name: "X-Powered-By", value: "Express" }],
+}).find((item) => item.name === "Express.js");
+
+assert.ok(expressDetection, "Express.js should be detected from X-Powered-By");
+assert.equal(expressDetection.id, "express");
+assert.equal(expressDetection.version, null);
+assert.equal(expressDetection.versionInfo.status, "unknown");
+assert.equal(expressDetection.cve.eligible, false);
+assert.equal(expressDetection.cve.cpe, null);
+assert.equal(expressDetection.cve.version, null);
+
+console.log(
+  "PASS: Express.js X-Powered-By detection does not invent a version",
+);
+
+// Next.js detection tests
+assert.ok(
+  names({
+    page: {
+      domHints: ["#__next"],
+    },
+  }).includes("Next.js"),
+);
+
+assert.ok(
+  names({
+    page: {
+      scripts: ["/_next/static/chunks/main.js"],
+    },
+  }).includes("Next.js"),
+);
+
+assert.ok(
+  names({
+    page: {
+      globals: ["__NEXT_DATA__"],
+    },
+  }).includes("Next.js"),
+);
+
+console.log("PASS: Next.js detection tests");
+
+// Nuxt tests
+assert.ok(
+  names({
+    page: {
+      domHints: ["#__nuxt"],
+    },
+  }).includes("Nuxt"),
+);
+
+assert.ok(
+  names({
+    page: {
+      scripts: ["/_nuxt/static/app.js"],
+    },
+  }).includes("Nuxt"),
+);
+
+assert.ok(
+  names({
+    page: {
+      globals: ["__NUXT__"],
+    },
+  }).includes("Nuxt"),
+);
+
+console.log("PASS: Nuxt detection tests");
+
+// NestJS tests
+assert.ok(
+  names({
+    page: {
+      resources: ["https://example.com/@nestjs/core"],
+    },
+  }).includes("NestJS"),
+);
+
+console.log("PASS: NestJS detection tests");
 
 console.log("PASS: All detector baseline and false-positive tests passed");
