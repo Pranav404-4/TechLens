@@ -1442,6 +1442,384 @@ async function runTests() {
     globalThis.fetch = originalFetchNextjs;
   }
 
+  // Test 4.0.14.1: Verify Redis CPE identity and NVD query construction
+  const redisNvdProduct = {
+    cpe: "cpe:2.3:a:redis:redis:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(redisNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:redis:redis:*:*:*:*:*:*:*:*",
+      redisNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchRedis = globalThis.fetch;
+  let redisRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      redisRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    // Synthetic version used only to verify CPE query construction.
+    const redisCveResult = await searchByCpe(redisNvdProduct, {
+      version: "7.2.4",
+      pause: 0,
+    });
+
+    const redisRequestedCpe = new URL(redisRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(redisCveResult.totalResults, 0);
+    assert.equal(
+      redisRequestedCpe,
+      "cpe:2.3:a:redis:redis:7.2.4:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Redis CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchRedis;
+  }
+
+  // Test 4.0.14.2: Verify Memcached CPE identity and NVD query construction
+  const memcachedNvdProduct = {
+    cpe: "cpe:2.3:a:memcached:memcached:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(memcachedNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:memcached:memcached:*:*:*:*:*:*:*:*",
+      memcachedNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchMemcached = globalThis.fetch;
+  let memcachedRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      memcachedRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    // Synthetic version used only to verify CPE query construction.
+    const memcachedCveResult = await searchByCpe(memcachedNvdProduct, {
+      version: "1.6.22",
+      pause: 0,
+    });
+
+    const memcachedRequestedCpe = new URL(
+      memcachedRequestedUrl,
+    ).searchParams.get("cpeName");
+
+    assert.equal(memcachedCveResult.totalResults, 0);
+    assert.equal(
+      memcachedRequestedCpe,
+      "cpe:2.3:a:memcached:memcached:1.6.22:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Memcached CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchMemcached;
+  }
+
+  // Test 4.0.14.3: Verify Caddy CPE identity and NVD query construction
+  const caddyNvdProduct = {
+    cpe: "cpe:2.3:a:caddyserver:caddy:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(caddyNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:caddyserver:caddy:*:*:*:*:*:*:*:*",
+      caddyNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchCaddy = globalThis.fetch;
+  let caddyRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      caddyRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    // Synthetic version used only to verify CPE query construction.
+    const caddyCveResult = await searchByCpe(caddyNvdProduct, {
+      version: "2.8.4",
+      pause: 0,
+    });
+
+    const caddyRequestedCpe = new URL(caddyRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(caddyCveResult.totalResults, 0);
+    assert.equal(
+      caddyRequestedCpe,
+      "cpe:2.3:a:caddyserver:caddy:2.8.4:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Caddy CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchCaddy;
+  }
+
+  // Test 4.0.14.4: Verify React CPE identity and NVD query construction
+  const reactNvdProduct = {
+    cpe: "cpe:2.3:a:facebook:react:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(reactNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:facebook:react:*:*:*:*:*:*:*:*",
+      reactNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchReact = globalThis.fetch;
+  let reactRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      reactRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    // Synthetic version used only to verify CPE query construction.
+    const reactCveResult = await searchByCpe(reactNvdProduct, {
+      version: "19.0.0",
+      pause: 0,
+    });
+
+    const reactRequestedCpe = new URL(reactRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(reactCveResult.totalResults, 0);
+    assert.equal(
+      reactRequestedCpe,
+      "cpe:2.3:a:facebook:react:19.0.0:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: React CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchReact;
+  }
+
+  // Test 4.0.14.5: Verify Vue.js CPE identity and NVD query construction
+  const vueNvdProduct = {
+    cpe: "cpe:2.3:a:vuejs:vue.js:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(vueNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:vuejs:vue.js:*:*:*:*:*:*:*:*",
+      vueNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchVue = globalThis.fetch;
+  let vueRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      vueRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    // Synthetic version used only to verify CPE query construction.
+    const vueCveResult = await searchByCpe(vueNvdProduct, {
+      version: "3.5.13",
+      pause: 0,
+    });
+
+    const vueRequestedCpe = new URL(vueRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(vueCveResult.totalResults, 0);
+    assert.equal(
+      vueRequestedCpe,
+      "cpe:2.3:a:vuejs:vue.js:3.5.13:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Vue.js CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchVue;
+  }
+
+  // Test 4.0.14.6: Verify Next.js CPE identity and NVD query construction
+  const nextjsVerifiedNvdProduct = {
+    cpe: "cpe:2.3:a:vercel:next.js:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(nextjsVerifiedNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:vercel:next.js:*:*:*:*:*:*:*:*",
+      nextjsVerifiedNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchNextjsVerified = globalThis.fetch;
+  let nextjsRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      nextjsRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    // Synthetic version used only to verify CPE query construction.
+    const nextjsCveResult = await searchByCpe(nextjsVerifiedNvdProduct, {
+      version: "15.1.6",
+      pause: 0,
+    });
+
+    const nextjsRequestedCpe = new URL(nextjsRequestedUrl).searchParams.get(
+      "cpeName",
+    );
+
+    assert.equal(nextjsCveResult.totalResults, 0);
+    assert.equal(
+      nextjsRequestedCpe,
+      "cpe:2.3:a:vercel:next.js:15.1.6:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Next.js CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchNextjsVerified;
+  }
+
+  // Test 4.0.14.7: Verify Bootstrap CPE identity and NVD query construction
+  const bootstrapNvdProduct = {
+    cpe: "cpe:2.3:a:twbs:bootstrap:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  assert.equal(isValidCpe23(bootstrapNvdProduct.cpe), true);
+
+  assert.equal(
+    matchesProductIdentity(
+      "cpe:2.3:a:twbs:bootstrap:*:*:*:*:*:*:*:*",
+      bootstrapNvdProduct.cpe,
+    ),
+    true,
+  );
+
+  const originalFetchBootstrap = globalThis.fetch;
+  let bootstrapRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      bootstrapRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    // Synthetic version used only to verify CPE query construction.
+    const bootstrapCveResult = await searchByCpe(bootstrapNvdProduct, {
+      version: "5.3.3",
+      pause: 0,
+    });
+
+    const bootstrapRequestedCpe = new URL(
+      bootstrapRequestedUrl,
+    ).searchParams.get("cpeName");
+
+    assert.equal(bootstrapCveResult.totalResults, 0);
+    assert.equal(
+      bootstrapRequestedCpe,
+      "cpe:2.3:a:twbs:bootstrap:5.3.3:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Bootstrap CPE identity and NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchBootstrap;
+  }
+
   // Test 4.0.15: Verify Nuxt CPE identity and concrete NVD query
   const nuxtNvdProduct = {
     cpe: "cpe:2.3:a:nuxt:nuxt:*:*:*:*:*:*:*:*",
@@ -1535,6 +1913,7 @@ async function runTests() {
   } finally {
     globalThis.fetch = originalFetchNestJS;
   }
+
   // Test 4.1: Fetch multiple NVD result pages.
   const originalFetchPagination = globalThis.fetch;
   const requestedPages = [];

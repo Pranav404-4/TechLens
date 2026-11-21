@@ -304,29 +304,20 @@ assert.equal(
 
 console.log("PASS: Django cookie detection does not invent a version");
 
-// 14.3. Flask cookie detection must not invent a version
+// 14.3. Generic session cookies must not identify Flask
 const flaskDetection = detect({
   page: {
     cookies: ["session"],
   },
 }).find((item) => item.name === "Flask");
 
-assert.ok(flaskDetection, "Flask should be detected");
-assert.equal(flaskDetection.id, "flask");
-assert.equal(flaskDetection.version, null);
-assert.equal(flaskDetection.versionInfo.status, "unknown");
-assert.equal(flaskDetection.cve.eligible, false);
 assert.equal(
-  flaskDetection.cve.cpe,
-  "cpe:2.3:a:palletsprojects:flask:*:*:*:*:*:*:*:*",
-);
-assert.equal(flaskDetection.cve.version, null);
-assert.equal(
-  flaskDetection.cve.reason,
-  "A confirmed technology version is required.",
+  flaskDetection,
+  undefined,
+  "Generic session cookie must not identify Flask",
 );
 
-console.log("PASS: Flask cookie detection does not invent a version");
+console.log("PASS: Generic session cookie does not falsely identify Flask");
 
 // 15. Laravel: specific cookie identifies Laravel
 assert.ok(
@@ -983,5 +974,183 @@ assert.ok(
 );
 
 console.log("PASS: NestJS detection tests");
+
+// Node.js explicit server-header detection
+const nodeDetection = detect({
+  page: {},
+  headers: [{ name: "X-Powered-By", value: "Node.js" }],
+}).find((item) => item.name === "Node.js");
+
+assert.ok(nodeDetection, "Node.js should be detected from an explicit header");
+assert.equal(nodeDetection.version, null);
+assert.equal(nodeDetection.versionInfo.status, "unknown");
+
+assert.equal(nodeDetection.id, "nodejs");
+assert.equal(nodeDetection.cve.eligible, false);
+assert.equal(nodeDetection.cve.cpe, "cpe:2.3:a:nodejs:node.js:*:*:*:*:*:*:*:*");
+assert.equal(nodeDetection.cve.version, null);
+assert.equal(
+  nodeDetection.cve.reason,
+  "A confirmed technology version is required.",
+);
+
+// Express must not automatically imply Node.js
+const expressOnlyNodeCheck = detect({
+  page: {},
+  headers: [{ name: "X-Powered-By", value: "Express" }],
+}).find((item) => item.name === "Node.js");
+
+assert.equal(expressOnlyNodeCheck, undefined);
+
+console.log("PASS: Node.js explicit header detection and Express separation");
+
+// Grafana verified CPE metadata
+const grafanaRule = RULES.find((item) => item.name === "Grafana");
+
+assert.ok(grafanaRule, "Grafana rule should exist");
+assert.equal(grafanaRule.id, "grafana");
+assert.equal(grafanaRule.product.vendor, "grafana");
+assert.equal(grafanaRule.product.name, "grafana");
+assert.equal(
+  grafanaRule.product.cpe,
+  "cpe:2.3:a:grafana:grafana:*:*:*:*:*:*:*:*",
+);
+assert.equal(grafanaRule.product.cpeStatus, "verified");
+assert.equal(grafanaRule.product.purl, "pkg:docker/grafana/grafana");
+assert.equal(grafanaRule.product.versionScope, "server");
+
+console.log("PASS: Grafana verified CPE metadata");
+
+// Grafana detection must not invent a version or enable CVE lookup
+const grafanaDetection = detect({
+  page: {
+    globals: ["grafanaBootData"],
+  },
+}).find((item) => item.name === "Grafana");
+
+assert.ok(grafanaDetection, "Grafana should be detected");
+assert.equal(grafanaDetection.id, "grafana");
+assert.equal(grafanaDetection.version, null);
+assert.equal(grafanaDetection.versionInfo.status, "unknown");
+assert.equal(grafanaDetection.cve.eligible, false);
+assert.equal(
+  grafanaDetection.cve.cpe,
+  "cpe:2.3:a:grafana:grafana:*:*:*:*:*:*:*:*",
+);
+assert.equal(grafanaDetection.cve.version, null);
+assert.equal(
+  grafanaDetection.cve.reason,
+  "A confirmed technology version is required.",
+);
+
+console.log(
+  "PASS: Grafana detection does not invent a version or enable CVE lookup",
+);
+
+// Redis metadata validation (metadata-only; no browser fingerprint)
+const redisRule = RULES.find((item) => item.name === "Redis");
+
+assert.ok(redisRule, "Redis rule should exist");
+assert.equal(redisRule.id, "redis");
+assert.equal(redisRule.product.vendor, "redis");
+assert.equal(redisRule.product.name, "redis");
+assert.equal(redisRule.product.cpe, "cpe:2.3:a:redis:redis:*:*:*:*:*:*:*:*");
+assert.equal(redisRule.product.cpeStatus, "verified");
+assert.equal(redisRule.product.purl, "pkg:docker/redis");
+assert.equal(redisRule.product.versionScope, "server");
+assert.deepEqual(redisRule.tests, []);
+
+console.log(
+  "PASS: Redis metadata is valid and has no weak detection fingerprints",
+);
+
+// Memcached metadata validation (metadata-only; no browser fingerprint)
+const memcachedRule = RULES.find((item) => item.name === "Memcached");
+
+assert.ok(memcachedRule, "Memcached rule should exist");
+assert.equal(memcachedRule.id, "memcached");
+assert.equal(memcachedRule.product.vendor, "memcached");
+assert.equal(memcachedRule.product.name, "memcached");
+assert.equal(
+  memcachedRule.product.cpe,
+  "cpe:2.3:a:memcached:memcached:*:*:*:*:*:*:*:*",
+);
+assert.equal(memcachedRule.product.cpeStatus, "verified");
+assert.equal(memcachedRule.product.purl, "pkg:docker/memcached");
+assert.equal(memcachedRule.product.versionScope, "server");
+assert.deepEqual(memcachedRule.tests, []);
+
+console.log(
+  "PASS: Memcached metadata is valid and has no weak detection fingerprints",
+);
+
+// Caddy metadata validation
+const caddyRule = RULES.find((item) => item.name === "Caddy");
+
+assert.ok(caddyRule, "Caddy rule should exist");
+assert.equal(caddyRule.id, "caddy");
+assert.equal(caddyRule.product.vendor, "caddyserver");
+assert.equal(caddyRule.product.name, "caddy");
+assert.equal(
+  caddyRule.product.cpe,
+  "cpe:2.3:a:caddyserver:caddy:*:*:*:*:*:*:*:*",
+);
+assert.equal(caddyRule.product.cpeStatus, "verified");
+assert.equal(
+  caddyRule.product.purl,
+  "pkg:golang/github.com/caddyserver/caddy/v2",
+);
+assert.equal(caddyRule.product.versionScope, "server");
+assert.deepEqual(caddyRule.tests, [["header", "server:caddy"]]);
+
+console.log("PASS: Caddy CVE metadata and detection signature are valid");
+
+// React metadata validation
+const reactRule = RULES.find((item) => item.name === "React");
+
+assert.ok(reactRule, "React rule should exist");
+assert.equal(reactRule.id, "react");
+assert.equal(reactRule.product.vendor, "facebook");
+assert.equal(reactRule.product.name, "react");
+assert.equal(reactRule.product.cpe, "cpe:2.3:a:facebook:react:*:*:*:*:*:*:*:*");
+assert.equal(reactRule.product.cpeStatus, "verified");
+assert.equal(reactRule.product.purl, "pkg:npm/react");
+assert.equal(reactRule.product.versionScope, "client");
+
+console.log("PASS: React CVE metadata is valid");
+
+// Next.js metadata validation
+const nextjsRule = RULES.find((item) => item.name === "Next.js");
+
+assert.ok(nextjsRule, "Next.js rule should exist");
+assert.equal(nextjsRule.id, "nextjs");
+assert.equal(nextjsRule.product.vendor, "vercel");
+assert.equal(nextjsRule.product.name, "next.js");
+assert.equal(
+  nextjsRule.product.cpe,
+  "cpe:2.3:a:vercel:next.js:*:*:*:*:*:*:*:*",
+);
+assert.equal(nextjsRule.product.cpeStatus, "verified");
+assert.equal(nextjsRule.product.purl, "pkg:npm/next");
+assert.equal(nextjsRule.product.versionScope, "server");
+
+console.log("PASS: Next.js CVE metadata is valid");
+
+// Bootstrap metadata validation
+const bootstrapRule = RULES.find((item) => item.name === "Bootstrap");
+
+assert.ok(bootstrapRule, "Bootstrap rule should exist");
+assert.equal(bootstrapRule.id, "bootstrap");
+assert.equal(bootstrapRule.product.vendor, "twbs");
+assert.equal(bootstrapRule.product.name, "bootstrap");
+assert.equal(
+  bootstrapRule.product.cpe,
+  "cpe:2.3:a:twbs:bootstrap:*:*:*:*:*:*:*:*",
+);
+assert.equal(bootstrapRule.product.cpeStatus, "verified");
+assert.equal(bootstrapRule.product.purl, "pkg:npm/bootstrap");
+assert.equal(bootstrapRule.product.versionScope, "client");
+
+console.log("PASS: Bootstrap CVE metadata is valid");
 
 console.log("PASS: All detector baseline and false-positive tests passed");
