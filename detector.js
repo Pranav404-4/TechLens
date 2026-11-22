@@ -379,11 +379,11 @@ const RULES = [
     id: "symfony",
     category: "Backend framework",
     product: {
-      vendor: "symfony",
+      vendor: "sensiolabs",
       name: "symfony",
-      cpe: null,
-      cpeStatus: "unmapped",
-      purl: "pkg:composer/symfony/symfony",
+      cpe: "cpe:2.3:a:sensiolabs:symfony:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:symfony/symfony",
       aliases: [],
       versionScope: "server",
     },
@@ -408,10 +408,10 @@ const RULES = [
     id: "express",
     category: "Backend framework",
     product: {
-      vendor: "expressjs",
+      vendor: "openjsf",
       name: "express",
-      cpe: null,
-      cpeStatus: "unmapped",
+      cpe: "cpe:2.3:a:openjsf:express:*:*:*:*:*:node.js:*:*",
+      cpeStatus: "verified",
       purl: "pkg:npm/express",
       aliases: [],
       versionScope: "server",
@@ -1008,8 +1008,8 @@ const RULES = [
     product: {
       vendor: "nestjs",
       name: "nestjs",
-      cpe: null,
-      cpeStatus: "unmapped",
+      cpe: "cpe:2.3:a:nestjs:nest:*:*:*:*:*:node.js:*:*",
+      cpeStatus: "verified",
       purl: "pkg:npm/@nestjs/core",
       aliases: [],
       versionScope: "server",
@@ -1241,38 +1241,98 @@ const RULES = [
 
   {
     name: "Microsoft IIS",
+    id: "microsoft-iis",
     category: "Web server",
     confidence: 92,
+    product: {
+      vendor: "microsoft",
+      name: "internet_information_services",
+      cpe: "cpe:2.3:a:microsoft:internet_information_services:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:generic/microsoft/internet-information-services",
+      aliases: [],
+      versionScope: "server",
+    },
     tests: [["header", "server:microsoft-iis"]],
   },
   {
     name: "OpenResty",
+    id: "openresty",
     category: "Web server",
     confidence: 92,
+    product: {
+      vendor: "openresty",
+      name: "openresty",
+      cpe: "cpe:2.3:a:openresty:openresty:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:generic/openresty",
+      aliases: [],
+      versionScope: "server",
+    },
     tests: [["header", "server:openresty"]],
   },
   {
     name: "Envoy",
+    id: "envoy",
     category: "Web server / Proxy",
     confidence: 90,
+    product: {
+      vendor: "envoyproxy",
+      name: "envoy",
+      cpe: "cpe:2.3:a:envoyproxy:envoy:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:generic/envoy",
+      aliases: [],
+      versionScope: "server",
+    },
     tests: [["header", "server:envoy"]],
   },
   {
     name: "Gunicorn",
+    id: "gunicorn",
     category: "Application server",
     confidence: 90,
+    product: {
+      vendor: "gunicorn",
+      name: "gunicorn",
+      cpe: "cpe:2.3:a:gunicorn:gunicorn:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:pypi/gunicorn",
+      aliases: [],
+      versionScope: "server",
+    },
     tests: [["header", "server:gunicorn"]],
   },
   {
     name: "Uvicorn",
+    id: "uvicorn",
     category: "Application server",
     confidence: 90,
+    product: {
+      vendor: "encode",
+      name: "uvicorn",
+      cpe: "cpe:2.3:a:encode:uvicorn:*:*:*:*:*:*:*:*",
+      cpeStatus: "unmapped",
+      purl: "pkg:pypi/uvicorn",
+      aliases: [],
+      versionScope: "server",
+    },
     tests: [["header", "server:uvicorn"]],
   },
   {
     name: "Kestrel",
+    id: "kestrel",
     category: "Application server",
     confidence: 90,
+    product: {
+      vendor: "microsoft",
+      name: "kestrel",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:nuget/microsoft.aspnetcore.server.kestrel",
+      aliases: [],
+      versionScope: "server",
+    },
     tests: [["header", "server:kestrel"]],
   },
   {
@@ -1309,8 +1369,18 @@ const RULES = [
   },
   {
     name: "Apache Traffic Server",
+    id: "apache-traffic-server",
     category: "Web server / Proxy",
     confidence: 95,
+    product: {
+      vendor: "apache",
+      name: "traffic_server",
+      cpe: "cpe:2.3:a:apache:traffic_server:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:generic/apache-traffic-server",
+      aliases: [],
+      versionScope: "server",
+    },
     tests: [["header", "server:ats"]],
   },
   {
@@ -1353,8 +1423,18 @@ const RULES = [
   },
   {
     name: "Varnish",
+    id: "varnish",
     category: "Cache / Proxy",
     confidence: 85,
+    product: {
+      vendor: "varnishcache",
+      name: "varnish",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:generic/varnish-cache",
+      aliases: [],
+      versionScope: "server",
+    },
     tests: [
       ["header", "via:varnish"],
       ["header", "x-varnish"],
@@ -1777,7 +1857,18 @@ const RULES = [
   },
   {
     name: "LiteSpeed Cache",
+    id: "litespeed-cache",
     category: "Performance",
+    confidence: 95,
+    product: {
+      vendor: "litespeed",
+      name: "litespeed_cache",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:wordpress/litespeed-cache",
+      aliases: [],
+      versionScope: "unknown",
+    },
     tests: [
       ["header", "x-litespeed-cache"],
       ["resource", "litespeed-cache"],
@@ -2504,7 +2595,18 @@ function validateProductMetadata(product) {
     ) {
       return false;
     }
+  } else if (product.cpeStatus === "unmapped") {
+    // Unverified candidate CPEs may be stored as metadata,
+    // but must never be used for CVE queries.
+    if (
+      product.cpe !== null &&
+      (typeof product.cpe !== "string" ||
+        !/^cpe:2\.3:[aho]:/i.test(product.cpe))
+    ) {
+      return false;
+    }
   } else if (product.cpe !== null) {
+    // not_applicable must not have a CPE.
     return false;
   }
 

@@ -1227,21 +1227,18 @@ async function runTests() {
     globalThis.fetch = originalFetchFlask;
   }
 
-  // Test 4.0.10: Symfony unmapped CPE must not trigger an NVD request
+  // Test 4.0.10: Verify Symfony CPE query
   const symfonyNvdProduct = {
-    cpe: null,
-    cpeStatus: "unmapped",
+    cpe: "cpe:2.3:a:sensiolabs:symfony:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
   };
 
-  assert.equal(symfonyNvdProduct.cpe, null);
-  assert.equal(symfonyNvdProduct.cpeStatus, "unmapped");
-
   const originalFetchSymfony = globalThis.fetch;
-  let symfonyFetchCalled = false;
+  let symfonyRequestedUrl = "";
 
   try {
-    globalThis.fetch = async () => {
-      symfonyFetchCalled = true;
+    globalThis.fetch = async (url) => {
+      symfonyRequestedUrl = String(url);
 
       return {
         ok: true,
@@ -1253,19 +1250,20 @@ async function runTests() {
       };
     };
 
-    await assert.rejects(
-      searchByCpe(symfonyNvdProduct, {
-        version: "7.3.0",
-        pause: 0,
-      }),
-      /A verified CPE identifier is required/,
+    await searchByCpe(symfonyNvdProduct, {
+      version: "7.3.0",
+      pause: 0,
+    });
+
+    const parsedSymfonyUrl = new URL(symfonyRequestedUrl);
+    const symfonyQuery = parsedSymfonyUrl.searchParams.get("cpeName");
+
+    assert.equal(
+      symfonyQuery,
+      "cpe:2.3:a:sensiolabs:symfony:7.3.0:*:*:*:*:*:*:*",
     );
 
-    assert.equal(symfonyFetchCalled, false);
-
-    console.log("PASS: Symfony unmapped CPE is blocked from NVD queries");
-
-    console.log("PASS: Symfony unmapped CPE is excluded from NVD queries");
+    console.log("PASS: Symfony verified CPE NVD query test");
   } finally {
     globalThis.fetch = originalFetchSymfony;
   }
@@ -1323,58 +1321,18 @@ async function runTests() {
     globalThis.fetch = originalFetchCakePHP;
   }
 
-  // Test 4.0.12: CodeIgniter unmapped CPE must not trigger an NVD request
+  // Test 4.0.12: Verify CodeIgniter CPE query
   const codeigniterNvdProduct = {
-    cpe: null,
-    cpeStatus: "unmapped",
+    cpe: "cpe:2.3:a:codeigniter:codeigniter:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
   };
-
-  assert.equal(codeigniterNvdProduct.cpe, null);
-  assert.equal(codeigniterNvdProduct.cpeStatus, "unmapped");
 
   const originalFetchCodeigniter = globalThis.fetch;
-  let codeigniterFetchCalled = false;
+  let codeigniterRequestedUrl = "";
 
   try {
-    globalThis.fetch = async () => {
-      codeigniterFetchCalled = true;
-      return {
-        ok: true,
-        status: 200,
-        json: async () => ({ totalResults: 0, vulnerabilities: [] }),
-      };
-    };
-
-    await assert.rejects(
-      searchByCpe(codeigniterNvdProduct, {
-        version: "4.6.0",
-        pause: 0,
-      }),
-      /A verified CPE identifier is required/,
-    );
-
-    assert.equal(codeigniterFetchCalled, false);
-
-    console.log("PASS: CodeIgniter unmapped CPE is blocked from NVD queries");
-  } finally {
-    globalThis.fetch = originalFetchCodeigniter;
-  }
-
-  // Test 4.0.13: Express unmapped CPE must not trigger an NVD request
-  const expressNvdProduct = {
-    cpe: null,
-    cpeStatus: "unmapped",
-  };
-
-  assert.equal(expressNvdProduct.cpe, null);
-  assert.equal(expressNvdProduct.cpeStatus, "unmapped");
-
-  const originalFetchExpress = globalThis.fetch;
-  let expressFetchCalled = false;
-
-  try {
-    globalThis.fetch = async () => {
-      expressFetchCalled = true;
+    globalThis.fetch = async (url) => {
+      codeigniterRequestedUrl = String(url);
 
       return {
         ok: true,
@@ -1386,17 +1344,61 @@ async function runTests() {
       };
     };
 
-    await assert.rejects(
-      searchByCpe(expressNvdProduct, {
-        version: "5.1.0",
-        pause: 0,
-      }),
-      /A verified CPE identifier is required/,
+    await searchByCpe(codeigniterNvdProduct, {
+      version: "4.6.0",
+      pause: 0,
+    });
+
+    const parsedCodeigniterUrl = new URL(codeigniterRequestedUrl);
+    const codeigniterQuery = parsedCodeigniterUrl.searchParams.get("cpeName");
+
+    assert.equal(
+      codeigniterQuery,
+      "cpe:2.3:a:codeigniter:codeigniter:4.6.0:*:*:*:*:*:*:*",
     );
 
-    assert.equal(expressFetchCalled, false);
+    console.log("PASS: CodeIgniter verified CPE NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchCodeigniter;
+  }
 
-    console.log("PASS: Express unmapped CPE is blocked from NVD queries");
+  // Test 4.0.13: Verify Express.js CPE query
+  const expressNvdProduct = {
+    cpe: "cpe:2.3:a:openjsf:express:*:*:*:*:*:node.js:*:*",
+    cpeStatus: "verified",
+  };
+
+  const originalFetchExpress = globalThis.fetch;
+  let expressRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      expressRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    await searchByCpe(expressNvdProduct, {
+      version: "5.1.0",
+      pause: 0,
+    });
+
+    const parsedExpressUrl = new URL(expressRequestedUrl);
+    const expressQuery = parsedExpressUrl.searchParams.get("cpeName");
+
+    assert.equal(
+      expressQuery,
+      "cpe:2.3:a:openjsf:express:5.1.0:*:*:*:*:node.js:*:*",
+    );
+
+    console.log("PASS: Express.js verified CPE NVD query test");
   } finally {
     globalThis.fetch = originalFetchExpress;
   }
@@ -1871,19 +1873,18 @@ async function runTests() {
     globalThis.fetch = originalFetchNuxt;
   }
 
-  // Test 4.0.16: Verify NestJS unmapped CPE blocks NVD lookup
-  const nestjsUnmappedProduct = {
-    cpe: null,
-    cpeStatus: "unmapped",
+  // Test 4.0.16: Verify NestJS CPE query
+  const nestjsProduct = {
+    cpe: "cpe:2.3:a:nestjs:nest:*:*:*:*:*:node.js:*:*",
+    cpeStatus: "verified",
   };
 
   const originalFetchNestJS = globalThis.fetch;
-  let nestjsFetchCalled = false;
-  let nestjsLookupBlocked = false;
+  let nestjsRequestedUrl = "";
 
   try {
-    globalThis.fetch = async () => {
-      nestjsFetchCalled = true;
+    globalThis.fetch = async (url) => {
+      nestjsRequestedUrl = String(url);
 
       return {
         ok: true,
@@ -1895,23 +1896,337 @@ async function runTests() {
       };
     };
 
-    try {
-      await searchByCpe(nestjsUnmappedProduct, {
-        version: "10.4.0",
-        pause: 0,
-      });
-    } catch (error) {
-      nestjsLookupBlocked = error.message.includes(
-        "A verified CPE identifier is required.",
-      );
-    }
+    await searchByCpe(nestjsProduct, {
+      version: "10.4.0",
+      pause: 0,
+    });
 
-    assert.equal(nestjsLookupBlocked, true);
-    assert.equal(nestjsFetchCalled, false);
+    const parsedNestJSUrl = new URL(nestjsRequestedUrl);
+    const nestjsQuery = parsedNestJSUrl.searchParams.get("cpeName");
 
-    console.log("PASS: NestJS unmapped CPE blocks NVD lookup");
+    assert.equal(
+      nestjsQuery,
+      "cpe:2.3:a:nestjs:nest:10.4.0:*:*:*:*:node.js:*:*",
+    );
+
+    console.log("PASS: NestJS verified CPE NVD query test");
   } finally {
     globalThis.fetch = originalFetchNestJS;
+  }
+
+  // Test 4.0.17: Verify Microsoft IIS CPE query
+  const iisProduct = {
+    cpe: "cpe:2.3:a:microsoft:internet_information_services:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  const originalFetchIIS = globalThis.fetch;
+  let iisRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      iisRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    await searchByCpe(iisProduct, {
+      version: "10.0",
+      pause: 0,
+    });
+
+    const parsedIISUrl = new URL(iisRequestedUrl);
+    const iisQuery = parsedIISUrl.searchParams.get("cpeName");
+
+    assert.equal(
+      iisQuery,
+      "cpe:2.3:a:microsoft:internet_information_services:10.0:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Microsoft IIS verified CPE NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchIIS;
+  }
+
+  // Test 4.0.18: Verify OpenResty CPE query
+  const openRestyProduct = {
+    cpe: "cpe:2.3:a:openresty:openresty:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  const originalFetchOpenResty = globalThis.fetch;
+  let openRestyRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      openRestyRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    await searchByCpe(openRestyProduct, {
+      version: "1.27.1.2",
+      pause: 0,
+    });
+
+    const parsedOpenRestyUrl = new URL(openRestyRequestedUrl);
+    const openRestyQuery = parsedOpenRestyUrl.searchParams.get("cpeName");
+
+    assert.equal(
+      openRestyQuery,
+      "cpe:2.3:a:openresty:openresty:1.27.1.2:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: OpenResty verified CPE NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchOpenResty;
+  }
+
+  // Test 4.0.19: Verify Envoy CPE query
+  const envoyProduct = {
+    cpe: "cpe:2.3:a:envoyproxy:envoy:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  const originalFetchEnvoy = globalThis.fetch;
+  let envoyRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      envoyRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    await searchByCpe(envoyProduct, {
+      version: "1.35.0",
+      pause: 0,
+    });
+
+    const parsedEnvoyUrl = new URL(envoyRequestedUrl);
+    const envoyQuery = parsedEnvoyUrl.searchParams.get("cpeName");
+
+    assert.equal(envoyQuery, "cpe:2.3:a:envoyproxy:envoy:1.35.0:*:*:*:*:*:*:*");
+
+    console.log("PASS: Envoy verified CPE NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchEnvoy;
+  }
+
+  // Test 4.0.20: Verify Gunicorn CPE query
+  const gunicornProduct = {
+    cpe: "cpe:2.3:a:gunicorn:gunicorn:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  const originalFetchGunicorn = globalThis.fetch;
+  let gunicornRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      gunicornRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    await searchByCpe(gunicornProduct, {
+      version: "23.0.0",
+      pause: 0,
+    });
+
+    const parsedGunicornUrl = new URL(gunicornRequestedUrl);
+    const gunicornQuery = parsedGunicornUrl.searchParams.get("cpeName");
+
+    assert.equal(
+      gunicornQuery,
+      "cpe:2.3:a:gunicorn:gunicorn:23.0.0:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Gunicorn verified CPE NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchGunicorn;
+  }
+
+  // Test 4.0.21: Uvicorn unmapped CPE must not trigger an NVD request
+  const uvicornNvdProduct = {
+    cpe: "cpe:2.3:a:encode:uvicorn:*:*:*:*:*:*:*:*",
+    cpeStatus: "unmapped",
+  };
+
+  const originalFetchUvicorn = globalThis.fetch;
+  let uvicornFetchCalled = false;
+
+  try {
+    globalThis.fetch = async () => {
+      uvicornFetchCalled = true;
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    await assert.rejects(
+      searchByCpe(uvicornNvdProduct, {
+        version: "0.34.0",
+        pause: 0,
+      }),
+      /A verified CPE identifier is required/i,
+    );
+
+    assert.equal(uvicornFetchCalled, false);
+
+    console.log("PASS: Uvicorn unmapped CPE is blocked from NVD queries");
+  } finally {
+    globalThis.fetch = originalFetchUvicorn;
+  }
+
+  // Test 4.0.22: Kestrel unmapped CPE must not trigger an NVD request
+  const kestrelNvdProduct = {
+    cpe: null,
+    cpeStatus: "unmapped",
+  };
+
+  const originalFetchKestrel = globalThis.fetch;
+  let kestrelFetchCalled = false;
+
+  try {
+    globalThis.fetch = async () => {
+      kestrelFetchCalled = true;
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    await assert.rejects(
+      searchByCpe(kestrelNvdProduct, {
+        version: "10.0.0",
+        pause: 0,
+      }),
+      /A verified CPE identifier is required/i,
+    );
+
+    assert.equal(kestrelFetchCalled, false);
+
+    console.log("PASS: Kestrel unmapped CPE is blocked from NVD queries");
+  } finally {
+    globalThis.fetch = originalFetchKestrel;
+  }
+
+  // Test 4.0.23: LiteSpeed Cache unmapped CPE must not trigger an NVD request
+  const litespeedNvdProduct = {
+    cpe: null,
+    cpeStatus: "unmapped",
+  };
+
+  const originalFetchLitespeed = globalThis.fetch;
+  let litespeedFetchCalled = false;
+
+  try {
+    globalThis.fetch = async () => {
+      litespeedFetchCalled = true;
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    await assert.rejects(
+      searchByCpe(litespeedNvdProduct, {
+        version: null,
+        pause: 0,
+      }),
+      /A verified CPE identifier is required/i,
+    );
+
+    assert.equal(litespeedFetchCalled, false);
+
+    console.log(
+      "PASS: LiteSpeed Cache unmapped CPE is blocked from NVD queries",
+    );
+  } finally {
+    globalThis.fetch = originalFetchLitespeed;
+  }
+
+  // Test 4.0.24: Varnish unmapped CPE must not trigger an NVD request
+  const varnishNvdProduct = {
+    cpe: null,
+    cpeStatus: "unmapped",
+  };
+
+  const originalFetchVarnish = globalThis.fetch;
+  let varnishFetchCalled = false;
+
+  try {
+    globalThis.fetch = async () => {
+      varnishFetchCalled = true;
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    await assert.rejects(
+      searchByCpe(varnishNvdProduct, {
+        version: null,
+        pause: 0,
+      }),
+      /A verified CPE identifier is required/i,
+    );
+
+    assert.equal(varnishFetchCalled, false);
+
+    console.log("PASS: Varnish unmapped CPE is blocked from NVD queries");
+  } finally {
+    globalThis.fetch = originalFetchVarnish;
   }
 
   // Test 4.1: Fetch multiple NVD result pages.
@@ -1975,6 +2290,48 @@ async function runTests() {
     console.log("PASS: Multi-page NVD pagination test");
   } finally {
     globalThis.fetch = originalFetchPagination;
+  }
+
+  // Test 4.0.14: Verify Apache Traffic Server CPE query
+  const trafficServerProduct = {
+    cpe: "cpe:2.3:a:apache:traffic_server:*:*:*:*:*:*:*:*",
+    cpeStatus: "verified",
+  };
+
+  const originalFetchTrafficServer = globalThis.fetch;
+  let trafficServerRequestedUrl = "";
+
+  try {
+    globalThis.fetch = async (url) => {
+      trafficServerRequestedUrl = String(url);
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          totalResults: 0,
+          vulnerabilities: [],
+        }),
+      };
+    };
+
+    await searchByCpe(trafficServerProduct, {
+      version: "10.2.3",
+      pause: 0,
+    });
+
+    const parsedTrafficServerUrl = new URL(trafficServerRequestedUrl);
+    const trafficServerQuery =
+      parsedTrafficServerUrl.searchParams.get("cpeName");
+
+    assert.equal(
+      trafficServerQuery,
+      "cpe:2.3:a:apache:traffic_server:10.2.3:*:*:*:*:*:*:*",
+    );
+
+    console.log("PASS: Apache Traffic Server verified CPE NVD query test");
+  } finally {
+    globalThis.fetch = originalFetchTrafficServer;
   }
 
   // Test 4.2: Advance pagination when a malformed record is returned.

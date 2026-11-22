@@ -188,11 +188,14 @@ const symfonyRule = RULES.find((item) => item.name === "Symfony");
 
 assert.ok(symfonyRule, "Symfony rule should exist");
 assert.equal(symfonyRule.id, "symfony");
-assert.equal(symfonyRule.product.vendor, "symfony");
+assert.equal(symfonyRule.product.vendor, "sensiolabs");
 assert.equal(symfonyRule.product.name, "symfony");
-assert.equal(symfonyRule.product.cpe, null);
-assert.equal(symfonyRule.product.cpeStatus, "unmapped");
-assert.equal(symfonyRule.product.purl, "pkg:composer/symfony/symfony");
+assert.equal(
+  symfonyRule.product.cpe,
+  "cpe:2.3:a:sensiolabs:symfony:*:*:*:*:*:*:*:*",
+);
+assert.equal(symfonyRule.product.cpeStatus, "verified");
+assert.equal(symfonyRule.product.purl, "pkg:symfony/symfony");
 assert.equal(symfonyRule.product.versionScope, "server");
 
 console.log("PASS: Symfony metadata");
@@ -211,7 +214,10 @@ assert.equal(symfonyTokenDetection.id, "symfony");
 assert.equal(symfonyTokenDetection.version, null);
 assert.equal(symfonyTokenDetection.versionInfo.status, "unknown");
 assert.equal(symfonyTokenDetection.cve.eligible, false);
-assert.equal(symfonyTokenDetection.cve.cpe, null);
+assert.equal(
+  symfonyTokenDetection.cve.cpe,
+  "cpe:2.3:a:sensiolabs:symfony:*:*:*:*:*:*:*:*",
+);
 assert.equal(symfonyTokenDetection.cve.version, null);
 
 console.log("PASS: Symfony X-Debug-Token detection");
@@ -235,7 +241,10 @@ assert.equal(symfonyLinkDetection.id, "symfony");
 assert.equal(symfonyLinkDetection.version, null);
 assert.equal(symfonyLinkDetection.versionInfo.status, "unknown");
 assert.equal(symfonyLinkDetection.cve.eligible, false);
-assert.equal(symfonyLinkDetection.cve.cpe, null);
+assert.equal(
+  symfonyLinkDetection.cve.cpe,
+  "cpe:2.3:a:sensiolabs:symfony:*:*:*:*:*:*:*:*",
+);
 assert.equal(symfonyLinkDetection.cve.version, null);
 
 console.log("PASS: Symfony X-Debug-Token-Link detection");
@@ -878,15 +887,313 @@ console.log(
   "PASS: Apache Tomcat detected without treating Coyote version as Tomcat version",
 );
 
+// Apache Traffic Server metadata validation
+const trafficServerRule = RULES.find(
+  (item) => item.name === "Apache Traffic Server",
+);
+
+assert.ok(trafficServerRule, "Apache Traffic Server rule should exist");
+assert.equal(trafficServerRule.id, "apache-traffic-server");
+assert.equal(trafficServerRule.product.vendor, "apache");
+assert.equal(trafficServerRule.product.name, "traffic_server");
+assert.equal(
+  trafficServerRule.product.cpe,
+  "cpe:2.3:a:apache:traffic_server:*:*:*:*:*:*:*:*",
+);
+assert.equal(trafficServerRule.product.cpeStatus, "verified");
+assert.equal(
+  trafficServerRule.product.purl,
+  "pkg:generic/apache-traffic-server",
+);
+assert.equal(trafficServerRule.product.versionScope, "server");
+
+console.log("PASS: Apache Traffic Server metadata");
+
+// Apache Traffic Server detection must not invent a version
+const trafficServerDetection = detect({
+  page: {},
+  headers: [{ name: "Server", value: "ATS" }],
+}).find((item) => item.name === "Apache Traffic Server");
+
+assert.ok(
+  trafficServerDetection,
+  "Apache Traffic Server should be detected from Server header",
+);
+assert.equal(trafficServerDetection.id, "apache-traffic-server");
+assert.equal(trafficServerDetection.version, null);
+assert.equal(trafficServerDetection.versionInfo.status, "unknown");
+assert.equal(trafficServerDetection.cve.eligible, false);
+assert.equal(
+  trafficServerDetection.cve.cpe,
+  "cpe:2.3:a:apache:traffic_server:*:*:*:*:*:*:*:*",
+);
+assert.equal(trafficServerDetection.cve.version, null);
+
+console.log(
+  "PASS: Apache Traffic Server detection preserves unknown-version safety",
+);
+
+// Microsoft IIS metadata validation
+const iisRule = RULES.find((item) => item.name === "Microsoft IIS");
+
+assert.ok(iisRule, "Microsoft IIS rule should exist");
+assert.equal(iisRule.id, "microsoft-iis");
+assert.equal(iisRule.product.vendor, "microsoft");
+assert.equal(iisRule.product.name, "internet_information_services");
+assert.equal(
+  iisRule.product.cpe,
+  "cpe:2.3:a:microsoft:internet_information_services:*:*:*:*:*:*:*:*",
+);
+assert.equal(iisRule.product.cpeStatus, "verified");
+assert.equal(iisRule.product.versionScope, "server");
+
+console.log("PASS: Microsoft IIS metadata");
+
+// Microsoft IIS detection must not invent a version
+const iisDetection = detect({
+  page: {},
+  headers: [{ name: "Server", value: "Microsoft-IIS" }],
+}).find((item) => item.name === "Microsoft IIS");
+
+assert.ok(iisDetection, "Microsoft IIS should be detected from Server header");
+assert.equal(iisDetection.id, "microsoft-iis");
+assert.equal(iisDetection.version, null);
+assert.equal(iisDetection.versionInfo.status, "unknown");
+assert.equal(iisDetection.cve.eligible, false);
+assert.equal(iisDetection.cve.version, null);
+
+console.log("PASS: Microsoft IIS detection preserves unknown-version safety");
+
+// OpenResty metadata validation
+const openRestyRule = RULES.find((item) => item.name === "OpenResty");
+
+assert.ok(openRestyRule, "OpenResty rule should exist");
+assert.equal(openRestyRule.id, "openresty");
+assert.equal(openRestyRule.product.vendor, "openresty");
+assert.equal(openRestyRule.product.name, "openresty");
+assert.equal(
+  openRestyRule.product.cpe,
+  "cpe:2.3:a:openresty:openresty:*:*:*:*:*:*:*:*",
+);
+assert.equal(openRestyRule.product.cpeStatus, "verified");
+assert.equal(openRestyRule.product.versionScope, "server");
+
+console.log("PASS: OpenResty metadata");
+
+// OpenResty detection must not invent a version
+const openRestyDetection = detect({
+  page: {},
+  headers: [{ name: "Server", value: "openresty" }],
+}).find((item) => item.name === "OpenResty");
+
+assert.ok(
+  openRestyDetection,
+  "OpenResty should be detected from Server header",
+);
+assert.equal(openRestyDetection.id, "openresty");
+assert.equal(openRestyDetection.version, null);
+assert.equal(openRestyDetection.versionInfo.status, "unknown");
+assert.equal(openRestyDetection.cve.eligible, false);
+assert.equal(openRestyDetection.cve.version, null);
+
+console.log("PASS: OpenResty detection preserves unknown-version safety");
+
+// Envoy metadata validation
+const envoyRule = RULES.find((item) => item.name === "Envoy");
+
+assert.ok(envoyRule, "Envoy rule should exist");
+assert.equal(envoyRule.id, "envoy");
+assert.equal(envoyRule.product.vendor, "envoyproxy");
+assert.equal(envoyRule.product.name, "envoy");
+assert.equal(
+  envoyRule.product.cpe,
+  "cpe:2.3:a:envoyproxy:envoy:*:*:*:*:*:*:*:*",
+);
+assert.equal(envoyRule.product.cpeStatus, "verified");
+assert.equal(envoyRule.product.versionScope, "server");
+
+console.log("PASS: Envoy metadata");
+
+// Envoy detection must not invent a version
+const envoyDetection = detect({
+  page: {},
+  headers: [{ name: "Server", value: "envoy" }],
+}).find((item) => item.name === "Envoy");
+
+assert.ok(envoyDetection, "Envoy should be detected from Server header");
+assert.equal(envoyDetection.id, "envoy");
+assert.equal(envoyDetection.version, null);
+assert.equal(envoyDetection.versionInfo.status, "unknown");
+assert.equal(envoyDetection.cve.eligible, false);
+assert.equal(envoyDetection.cve.version, null);
+
+console.log("PASS: Envoy detection preserves unknown-version safety");
+
+// Gunicorn metadata validation
+const gunicornRule = RULES.find((item) => item.name === "Gunicorn");
+
+assert.ok(gunicornRule, "Gunicorn rule should exist");
+assert.equal(gunicornRule.id, "gunicorn");
+assert.equal(gunicornRule.product.vendor, "gunicorn");
+assert.equal(gunicornRule.product.name, "gunicorn");
+assert.equal(
+  gunicornRule.product.cpe,
+  "cpe:2.3:a:gunicorn:gunicorn:*:*:*:*:*:*:*:*",
+);
+assert.equal(gunicornRule.product.cpeStatus, "verified");
+assert.equal(gunicornRule.product.versionScope, "server");
+
+console.log("PASS: Gunicorn metadata");
+
+// Gunicorn detection must not invent a version
+const gunicornDetection = detect({
+  page: {},
+  headers: [{ name: "Server", value: "gunicorn" }],
+}).find((item) => item.name === "Gunicorn");
+
+assert.ok(gunicornDetection, "Gunicorn should be detected from Server header");
+assert.equal(gunicornDetection.id, "gunicorn");
+assert.equal(gunicornDetection.version, null);
+assert.equal(gunicornDetection.versionInfo.status, "unknown");
+assert.equal(gunicornDetection.cve.eligible, false);
+assert.equal(gunicornDetection.cve.version, null);
+
+console.log("PASS: Gunicorn detection preserves unknown-version safety");
+
+// Uvicorn metadata validation
+const uvicornRule = RULES.find((item) => item.name === "Uvicorn");
+
+assert.ok(uvicornRule, "Uvicorn rule should exist");
+assert.equal(uvicornRule.id, "uvicorn");
+assert.equal(uvicornRule.product.vendor, "encode");
+assert.equal(uvicornRule.product.name, "uvicorn");
+assert.equal(
+  uvicornRule.product.cpe,
+  "cpe:2.3:a:encode:uvicorn:*:*:*:*:*:*:*:*",
+);
+assert.equal(uvicornRule.product.cpeStatus, "unmapped");
+assert.equal(uvicornRule.product.purl, "pkg:pypi/uvicorn");
+assert.equal(uvicornRule.product.versionScope, "server");
+
+console.log("PASS: Uvicorn metadata");
+
+// Uvicorn detection must not invent a version
+const uvicornDetection = detect({
+  page: {},
+  headers: [{ name: "Server", value: "uvicorn" }],
+}).find((item) => item.name === "Uvicorn");
+
+assert.ok(uvicornDetection, "Uvicorn should be detected");
+assert.equal(uvicornDetection.id, "uvicorn");
+assert.equal(uvicornDetection.version, null);
+assert.equal(uvicornDetection.versionInfo.status, "unknown");
+assert.equal(uvicornDetection.cve.eligible, false);
+assert.equal(uvicornDetection.cve.version, null);
+
+console.log("PASS: Uvicorn detection preserves unknown-version safety");
+
+// Kestrel metadata validation
+const kestrelRule = RULES.find((item) => item.name === "Kestrel");
+
+assert.ok(kestrelRule, "Kestrel rule should exist");
+assert.equal(kestrelRule.id, "kestrel");
+assert.equal(kestrelRule.product.vendor, "microsoft");
+assert.equal(kestrelRule.product.name, "kestrel");
+assert.equal(kestrelRule.product.cpe, null);
+assert.equal(kestrelRule.product.cpeStatus, "unmapped");
+assert.equal(
+  kestrelRule.product.purl,
+  "pkg:nuget/microsoft.aspnetcore.server.kestrel",
+);
+assert.equal(kestrelRule.product.versionScope, "server");
+
+console.log("PASS: Kestrel metadata");
+
+// Kestrel detection must not invent a version
+const kestrelDetection = detect({
+  page: {},
+  headers: [{ name: "Server", value: "kestrel" }],
+}).find((item) => item.name === "Kestrel");
+
+assert.ok(kestrelDetection, "Kestrel should be detected");
+assert.equal(kestrelDetection.id, "kestrel");
+assert.equal(kestrelDetection.version, null);
+assert.equal(kestrelDetection.versionInfo.status, "unknown");
+assert.equal(kestrelDetection.cve.eligible, false);
+assert.equal(kestrelDetection.cve.version, null);
+
+console.log("PASS: Kestrel detection preserves unknown-version safety");
+
+// LiteSpeed Cache metadata validation
+const litespeedRule = RULES.find((item) => item.name === "LiteSpeed Cache");
+
+assert.ok(litespeedRule, "LiteSpeed Cache rule should exist");
+assert.equal(litespeedRule.id, "litespeed-cache");
+assert.equal(litespeedRule.product.vendor, "litespeed");
+assert.equal(litespeedRule.product.name, "litespeed_cache");
+assert.equal(litespeedRule.product.cpe, null);
+assert.equal(litespeedRule.product.cpeStatus, "unmapped");
+assert.equal(litespeedRule.product.purl, "pkg:wordpress/litespeed-cache");
+assert.equal(litespeedRule.product.versionScope, "unknown");
+
+console.log("PASS: LiteSpeed Cache metadata");
+
+// LiteSpeed Cache detection must not invent a version
+const litespeedDetection = detect({
+  page: {},
+  headers: [{ name: "x-litespeed-cache", value: "hit" }],
+}).find((item) => item.name === "LiteSpeed Cache");
+
+assert.ok(litespeedDetection, "LiteSpeed Cache should be detected");
+assert.equal(litespeedDetection.id, "litespeed-cache");
+assert.equal(litespeedDetection.version, null);
+assert.equal(litespeedDetection.versionInfo.status, "unknown");
+assert.equal(litespeedDetection.cve.eligible, false);
+assert.equal(litespeedDetection.cve.version, null);
+
+console.log("PASS: LiteSpeed Cache detection preserves unknown-version safety");
+
+// Varnish metadata validation
+const varnishRule = RULES.find((item) => item.name === "Varnish");
+
+assert.ok(varnishRule, "Varnish rule should exist");
+assert.equal(varnishRule.id, "varnish");
+assert.equal(varnishRule.product.vendor, "varnishcache");
+assert.equal(varnishRule.product.name, "varnish");
+assert.equal(varnishRule.product.cpe, null);
+assert.equal(varnishRule.product.cpeStatus, "unmapped");
+assert.equal(varnishRule.product.purl, "pkg:generic/varnish-cache");
+assert.equal(varnishRule.product.versionScope, "server");
+
+console.log("PASS: Varnish metadata");
+
+// Varnish detection must not invent a version
+const varnishDetection = detect({
+  page: {},
+  headers: [{ name: "via", value: "varnish" }],
+}).find((item) => item.name === "Varnish");
+
+assert.ok(varnishDetection, "Varnish should be detected");
+assert.equal(varnishDetection.id, "varnish");
+assert.equal(varnishDetection.version, null);
+assert.equal(varnishDetection.versionInfo.status, "unknown");
+assert.equal(varnishDetection.cve.eligible, false);
+assert.equal(varnishDetection.cve.version, null);
+
+console.log("PASS: Varnish detection preserves unknown-version safety");
+
 // Express.js metadata validation
 const expressRule = RULES.find((item) => item.name === "Express.js");
 
 assert.ok(expressRule, "Express.js rule should exist");
 assert.equal(expressRule.id, "express");
-assert.equal(expressRule.product.vendor, "expressjs");
 assert.equal(expressRule.product.name, "express");
-assert.equal(expressRule.product.cpe, null);
-assert.equal(expressRule.product.cpeStatus, "unmapped");
+assert.equal(expressRule.product.vendor, "openjsf");
+assert.equal(
+  expressRule.product.cpe,
+  "cpe:2.3:a:openjsf:express:*:*:*:*:*:node.js:*:*",
+);
+assert.equal(expressRule.product.cpeStatus, "verified");
 assert.equal(expressRule.product.purl, "pkg:npm/express");
 assert.equal(expressRule.product.versionScope, "server");
 
@@ -903,7 +1210,10 @@ assert.equal(expressDetection.id, "express");
 assert.equal(expressDetection.version, null);
 assert.equal(expressDetection.versionInfo.status, "unknown");
 assert.equal(expressDetection.cve.eligible, false);
-assert.equal(expressDetection.cve.cpe, null);
+assert.equal(
+  expressDetection.cve.cpe,
+  "cpe:2.3:a:openjsf:express:*:*:*:*:*:node.js:*:*",
+);
 assert.equal(expressDetection.cve.version, null);
 
 console.log(
