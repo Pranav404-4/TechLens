@@ -1438,7 +1438,7 @@ assert.equal(nextjsRule.product.vendor, "vercel");
 assert.equal(nextjsRule.product.name, "next.js");
 assert.equal(
   nextjsRule.product.cpe,
-  "cpe:2.3:a:vercel:next.js:*:*:*:*:*:*:*:*",
+  "cpe:2.3:a:vercel:next.js:*:*:*:*:*:node.js:*:*",
 );
 assert.equal(nextjsRule.product.cpeStatus, "verified");
 assert.equal(nextjsRule.product.purl, "pkg:npm/next");
@@ -1451,16 +1451,174 @@ const bootstrapRule = RULES.find((item) => item.name === "Bootstrap");
 
 assert.ok(bootstrapRule, "Bootstrap rule should exist");
 assert.equal(bootstrapRule.id, "bootstrap");
-assert.equal(bootstrapRule.product.vendor, "twbs");
+assert.equal(bootstrapRule.product.vendor, "getbootstrap");
 assert.equal(bootstrapRule.product.name, "bootstrap");
 assert.equal(
   bootstrapRule.product.cpe,
-  "cpe:2.3:a:twbs:bootstrap:*:*:*:*:*:*:*:*",
+  "cpe:2.3:a:getbootstrap:bootstrap:*:*:*:*:*:*:*:*",
 );
 assert.equal(bootstrapRule.product.cpeStatus, "verified");
 assert.equal(bootstrapRule.product.purl, "pkg:npm/bootstrap");
 assert.equal(bootstrapRule.product.versionScope, "client");
 
 console.log("PASS: Bootstrap CVE metadata is valid");
+
+// Nuxt metadata validation
+const nuxtRule = RULES.find((item) => item.name === "Nuxt");
+
+assert.ok(nuxtRule, "Nuxt rule should exist");
+assert.equal(nuxtRule.id, "nuxt");
+assert.equal(nuxtRule.product.vendor, "nuxt");
+assert.equal(nuxtRule.product.name, "nuxt");
+assert.equal(nuxtRule.product.cpe, "cpe:2.3:a:nuxt:nuxt:*:*:*:*:*:*:*:*");
+assert.equal(nuxtRule.product.cpeStatus, "verified");
+assert.equal(nuxtRule.product.purl, "pkg:npm/nuxt");
+assert.equal(nuxtRule.product.versionScope, "client");
+
+console.log("PASS: Nuxt CVE metadata is valid");
+
+// NestJS metadata validation
+const nestjsRule = RULES.find((item) => item.name === "NestJS");
+
+assert.ok(nestjsRule, "NestJS rule should exist");
+assert.equal(nestjsRule.id, "nestjs");
+assert.equal(nestjsRule.product.vendor, "nestjs");
+assert.equal(nestjsRule.product.name, "nestjs");
+assert.equal(
+  nestjsRule.product.cpe,
+  "cpe:2.3:a:nestjs:nest:*:*:*:*:*:node.js:*:*",
+);
+assert.equal(nestjsRule.product.cpeStatus, "verified");
+assert.equal(nestjsRule.product.purl, "pkg:npm/@nestjs/core");
+assert.equal(nestjsRule.product.versionScope, "server");
+
+console.log("PASS: NestJS CVE metadata is valid");
+
+// Vue.js metadata validation
+const vueRule = RULES.find((item) => item.name === "Vue.js");
+
+assert.ok(vueRule, "Vue.js rule should exist");
+assert.equal(vueRule.id, "vue");
+assert.equal(vueRule.product.vendor, "vuejs");
+assert.equal(vueRule.product.name, "vue");
+assert.equal(vueRule.product.cpe, "cpe:2.3:a:vuejs:vue:*:*:*:*:*:*:*:*");
+assert.equal(vueRule.product.cpeStatus, "verified");
+assert.equal(vueRule.product.purl, "pkg:npm/vue");
+assert.equal(vueRule.product.versionScope, "client");
+
+console.log("PASS: Vue.js CVE metadata is valid");
+
+// Flask metadata validation
+const flaskRule = RULES.find((item) => item.name === "Flask");
+
+assert.ok(flaskRule, "Flask rule should exist");
+assert.equal(flaskRule.id, "flask");
+assert.equal(flaskRule.product.vendor, "palletsprojects");
+assert.equal(flaskRule.product.name, "flask");
+assert.equal(
+  flaskRule.product.cpe,
+  "cpe:2.3:a:palletsprojects:flask:*:*:*:*:*:*:*:*",
+);
+assert.equal(flaskRule.product.cpeStatus, "verified");
+assert.equal(flaskRule.product.purl, "pkg:pypi/flask");
+assert.equal(flaskRule.product.versionScope, "server");
+
+console.log("PASS: Flask CVE metadata is valid");
+
+// Node.js metadata validation
+const nodejsRule = RULES.find((item) => item.name === "Node.js");
+
+assert.ok(nodejsRule, "Node.js rule should exist");
+assert.equal(nodejsRule.id, "nodejs");
+assert.equal(nodejsRule.product.vendor, "nodejs");
+assert.equal(nodejsRule.product.name, "node.js");
+assert.equal(
+  nodejsRule.product.cpe,
+  "cpe:2.3:a:nodejs:node.js:*:*:*:*:*:*:*:*",
+);
+assert.equal(nodejsRule.product.cpeStatus, "verified");
+assert.equal(nodejsRule.product.purl, "pkg:npm/node");
+assert.equal(nodejsRule.product.versionScope, "server");
+
+console.log("PASS: Node.js CVE metadata is valid");
+
+// PHP metadata validation
+const phpRule = RULES.find((item) => item.name === "PHP");
+
+assert.ok(phpRule, "PHP rule should exist");
+assert.equal(phpRule.id, "php");
+assert.equal(phpRule.product.vendor, "php");
+assert.equal(phpRule.product.name, "php");
+assert.equal(phpRule.product.cpe, "cpe:2.3:a:php:php:*:*:*:*:*:*:*:*");
+assert.equal(phpRule.product.cpeStatus, "verified");
+assert.equal(phpRule.product.purl, null);
+assert.equal(phpRule.product.versionScope, "server");
+
+console.log("PASS: PHP metadata is valid");
+
+// CakePHP metadata validation
+const cakephpRule = RULES.find((item) => item.name === "CakePHP");
+
+assert.ok(cakephpRule, "CakePHP rule should exist");
+assert.equal(cakephpRule.id, "cakephp");
+assert.equal(cakephpRule.product.vendor, "cakephp");
+assert.equal(cakephpRule.product.name, "cakephp");
+assert.equal(
+  cakephpRule.product.cpe,
+  "cpe:2.3:a:cakephp:cakephp:*:*:*:*:*:*:*:*",
+);
+assert.equal(cakephpRule.product.cpeStatus, "verified");
+assert.equal(cakephpRule.product.purl, "pkg:composer/cakephp/cakephp");
+assert.equal(cakephpRule.product.versionScope, "server");
+
+console.log("PASS: CakePHP metadata is valid");
+
+// Joomla metadata validation
+const joomlaRule = RULES.find((item) => item.name === "Joomla");
+
+assert.ok(joomlaRule, "Joomla rule should exist");
+assert.equal(joomlaRule.id, "joomla");
+assert.equal(joomlaRule.product.vendor, "joomla");
+assert.equal(joomlaRule.product.name, "joomla!");
+assert.equal(
+  joomlaRule.product.cpe,
+  "cpe:2.3:a:joomla:joomla\\!:*:*:*:*:*:*:*:*",
+);
+assert.equal(joomlaRule.product.cpeStatus, "verified");
+assert.equal(joomlaRule.product.purl, null);
+assert.equal(joomlaRule.product.versionScope, "server");
+
+console.log("PASS: Joomla metadata is valid");
+
+// Drupal metadata validation
+const drupalRule = RULES.find((item) => item.name === "Drupal");
+
+assert.ok(drupalRule, "Drupal rule should exist");
+assert.equal(drupalRule.id, "drupal");
+assert.equal(drupalRule.product.vendor, "drupal");
+assert.equal(drupalRule.product.name, "drupal");
+assert.equal(drupalRule.product.cpe, "cpe:2.3:a:drupal:drupal:*:*:*:*:*:*:*:*");
+assert.equal(drupalRule.product.cpeStatus, "verified");
+assert.equal(drupalRule.product.purl, null);
+assert.equal(drupalRule.product.versionScope, "server");
+
+console.log("PASS: Drupal metadata is valid");
+
+// Magento metadata validation
+const magentoRule = RULES.find((item) => item.name === "Magento");
+
+assert.ok(magentoRule, "Magento rule should exist");
+assert.equal(magentoRule.id, "magento");
+assert.equal(magentoRule.product.vendor, "adobe");
+assert.equal(magentoRule.product.name, "magento");
+assert.equal(
+  magentoRule.product.cpe,
+  "cpe:2.3:a:adobe:magento:*:*:*:*:open_source:*:*:*",
+);
+assert.equal(magentoRule.product.cpeStatus, "verified");
+assert.equal(magentoRule.product.purl, null);
+assert.equal(magentoRule.product.versionScope, "server");
+
+console.log("PASS: Magento metadata is valid");
 
 console.log("PASS: All detector baseline and false-positive tests passed");

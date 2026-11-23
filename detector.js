@@ -848,9 +848,9 @@ const RULES = [
     id: "bootstrap",
     category: "CSS framework",
     product: {
-      vendor: "twbs",
+      vendor: "getbootstrap",
       name: "bootstrap",
-      cpe: "cpe:2.3:a:twbs:bootstrap:*:*:*:*:*:*:*:*",
+      cpe: "cpe:2.3:a:getbootstrap:bootstrap:*:*:*:*:*:*:*:*",
       cpeStatus: "verified",
       purl: "pkg:npm/bootstrap",
       aliases: [],
@@ -968,7 +968,7 @@ const RULES = [
     product: {
       vendor: "vercel",
       name: "next.js",
-      cpe: "cpe:2.3:a:vercel:next.js:*:*:*:*:*:*:*:*",
+      cpe: "cpe:2.3:a:vercel:next.js:*:*:*:*:*:node.js:*:*",
       cpeStatus: "verified",
       purl: "pkg:npm/next",
       aliases: [],
@@ -1066,7 +1066,7 @@ const RULES = [
     product: {
       vendor: "vuejs",
       name: "vue",
-      cpe: "cpe:2.3:a:vuejs:vue.js:*:*:*:*:*:*:*:*",
+      cpe: "cpe:2.3:a:vuejs:vue:*:*:*:*:*:*:*:*",
       cpeStatus: "verified",
       purl: "pkg:npm/vue",
       aliases: [],
