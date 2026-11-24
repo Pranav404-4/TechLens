@@ -195,7 +195,7 @@ assert.equal(
   "cpe:2.3:a:sensiolabs:symfony:*:*:*:*:*:*:*:*",
 );
 assert.equal(symfonyRule.product.cpeStatus, "verified");
-assert.equal(symfonyRule.product.purl, "pkg:symfony/symfony");
+assert.equal(symfonyRule.product.purl, "pkg:composer/symfony/symfony");
 assert.equal(symfonyRule.product.versionScope, "server");
 
 console.log("PASS: Symfony metadata");
@@ -364,6 +364,7 @@ const fathom = detect({
   },
 }).find((item) => item.name === "Fathom Analytics");
 
+assert.ok(fathom, "Fathom Analytics should be detected");
 assert.equal(fathom.id, "fathom-analytics");
 assert.equal(fathom.product.vendor, "Fathom");
 assert.equal(fathom.product.name, "Fathom Analytics");
@@ -378,14 +379,23 @@ const umami = detect({
 assert.equal(umami.id, "umami");
 
 // 21. Simple Analytics exposes its product identity
-const simpleAnalytics = detect({
+// Simple Analytics detection and metadata
+const simpleAnalyticsDetection = detect({
   page: {
     scripts: ["https://scripts.simpleanalyticscdn.com/latest.js"],
   },
 }).find((item) => item.name === "Simple Analytics");
 
-assert.equal(simpleAnalytics.id, "simple-analytics");
-assert.equal(simpleAnalytics.product.vendor, "Simple Analytics");
+assert.ok(simpleAnalyticsDetection, "Simple Analytics should be detected");
+assert.equal(simpleAnalyticsDetection.id, "simple-analytics");
+assert.equal(simpleAnalyticsDetection.product.vendor, "Simple Analytics");
+assert.equal(simpleAnalyticsDetection.product.name, "Simple Analytics");
+assert.equal(simpleAnalyticsDetection.product.cpe, null);
+assert.equal(simpleAnalyticsDetection.product.cpeStatus, "unmapped");
+assert.equal(simpleAnalyticsDetection.product.purl, null);
+assert.equal(simpleAnalyticsDetection.product.versionScope, "unknown");
+
+console.log("PASS: Simple Analytics detection and metadata");
 
 // 22. Legacy Django rule still works
 assert.ok(
@@ -838,12 +848,9 @@ assert.ok(magentoDetection, "Magento detection should exist");
 assert.equal(magentoDetection.id, "magento");
 assert.equal(magentoDetection.version, "2.4.7");
 assert.equal(magentoDetection.versionInfo.status, "confirmed");
-assert.equal(magentoDetection.cve.eligible, true);
-assert.equal(
-  magentoDetection.cve.cpe,
-  "cpe:2.3:a:adobe:magento:*:*:*:*:open_source:*:*:*",
-);
-assert.equal(magentoDetection.cve.version, "2.4.7");
+assert.equal(magentoDetection.cve.eligible, false);
+assert.equal(magentoDetection.cve.cpe, null);
+assert.equal(magentoDetection.cve.version, null);
 
 console.log("PASS: Magento confirmed version reaches CVE readiness");
 
@@ -901,10 +908,7 @@ assert.equal(
   "cpe:2.3:a:apache:traffic_server:*:*:*:*:*:*:*:*",
 );
 assert.equal(trafficServerRule.product.cpeStatus, "verified");
-assert.equal(
-  trafficServerRule.product.purl,
-  "pkg:generic/apache-traffic-server",
-);
+assert.equal(trafficServerRule.product.purl, null);
 assert.equal(trafficServerRule.product.versionScope, "server");
 
 console.log("PASS: Apache Traffic Server metadata");
@@ -1153,6 +1157,24 @@ assert.equal(litespeedDetection.cve.version, null);
 
 console.log("PASS: LiteSpeed Cache detection preserves unknown-version safety");
 
+// LiteSpeed web server metadata validation
+const liteSpeedServerRule = RULES.find((item) => item.name === "LiteSpeed");
+
+assert.ok(liteSpeedServerRule, "LiteSpeed rule should exist");
+assert.equal(liteSpeedServerRule.id, "litespeed");
+assert.equal(liteSpeedServerRule.product.vendor, "litespeedtech");
+assert.equal(liteSpeedServerRule.product.name, "litespeed");
+assert.equal(liteSpeedServerRule.product.cpe, null);
+assert.equal(liteSpeedServerRule.product.cpeStatus, "unmapped");
+assert.equal(liteSpeedServerRule.product.purl, null);
+assert.deepEqual(liteSpeedServerRule.product.aliases, [
+  "OpenLiteSpeed",
+  "LiteSpeed Web Server",
+]);
+assert.equal(liteSpeedServerRule.product.versionScope, "server");
+
+console.log("PASS: LiteSpeed web server metadata");
+
 // Varnish metadata validation
 const varnishRule = RULES.find((item) => item.name === "Varnish");
 
@@ -1326,7 +1348,7 @@ assert.equal(
   "cpe:2.3:a:grafana:grafana:*:*:*:*:*:*:*:*",
 );
 assert.equal(grafanaRule.product.cpeStatus, "verified");
-assert.equal(grafanaRule.product.purl, "pkg:docker/grafana/grafana");
+assert.equal(grafanaRule.product.purl, null);
 assert.equal(grafanaRule.product.versionScope, "server");
 
 console.log("PASS: Grafana verified CPE metadata");
@@ -1473,7 +1495,7 @@ assert.equal(nuxtRule.product.name, "nuxt");
 assert.equal(nuxtRule.product.cpe, "cpe:2.3:a:nuxt:nuxt:*:*:*:*:*:*:*:*");
 assert.equal(nuxtRule.product.cpeStatus, "verified");
 assert.equal(nuxtRule.product.purl, "pkg:npm/nuxt");
-assert.equal(nuxtRule.product.versionScope, "client");
+assert.equal(nuxtRule.product.versionScope, "unknown");
 
 console.log("PASS: Nuxt CVE metadata is valid");
 
@@ -1489,7 +1511,7 @@ assert.equal(
   "cpe:2.3:a:nestjs:nest:*:*:*:*:*:node.js:*:*",
 );
 assert.equal(nestjsRule.product.cpeStatus, "verified");
-assert.equal(nestjsRule.product.purl, "pkg:npm/@nestjs/core");
+assert.equal(nestjsRule.product.purl, "pkg:npm/%40nestjs/core");
 assert.equal(nestjsRule.product.versionScope, "server");
 
 console.log("PASS: NestJS CVE metadata is valid");
@@ -1537,7 +1559,7 @@ assert.equal(
   "cpe:2.3:a:nodejs:node.js:*:*:*:*:*:*:*:*",
 );
 assert.equal(nodejsRule.product.cpeStatus, "verified");
-assert.equal(nodejsRule.product.purl, "pkg:npm/node");
+assert.equal(nodejsRule.product.purl, null);
 assert.equal(nodejsRule.product.versionScope, "server");
 
 console.log("PASS: Node.js CVE metadata is valid");
@@ -1611,14 +1633,360 @@ assert.ok(magentoRule, "Magento rule should exist");
 assert.equal(magentoRule.id, "magento");
 assert.equal(magentoRule.product.vendor, "adobe");
 assert.equal(magentoRule.product.name, "magento");
-assert.equal(
-  magentoRule.product.cpe,
-  "cpe:2.3:a:adobe:magento:*:*:*:*:open_source:*:*:*",
-);
-assert.equal(magentoRule.product.cpeStatus, "verified");
+assert.equal(magentoRule.product.cpe, null);
+assert.equal(magentoRule.product.cpeStatus, "unmapped");
 assert.equal(magentoRule.product.purl, null);
 assert.equal(magentoRule.product.versionScope, "server");
 
 console.log("PASS: Magento metadata is valid");
+
+// Cloudflare metadata validation
+const cloudflareRule = RULES.find((item) => item.name === "Cloudflare");
+
+assert.ok(cloudflareRule, "Cloudflare rule should exist");
+assert.equal(cloudflareRule.id, "cloudflare");
+assert.equal(cloudflareRule.product.vendor, "cloudflare");
+assert.equal(cloudflareRule.product.name, "cloudflare");
+assert.equal(cloudflareRule.product.cpe, null);
+assert.equal(cloudflareRule.product.cpeStatus, "unmapped");
+assert.equal(cloudflareRule.product.purl, null);
+assert.deepEqual(cloudflareRule.product.aliases, []);
+assert.equal(cloudflareRule.product.versionScope, "unknown");
+
+console.log("PASS: Cloudflare metadata is valid");
+
+// Cloudflare detection must not invent a version
+const cloudflareDetection = detect({
+  page: {
+    cookies: ["__cf_bm"],
+  },
+  headers: [
+    { name: "server", value: "cloudflare" },
+    { name: "cf-ray", value: "example-ray-id" },
+  ],
+}).find((item) => item.name === "Cloudflare");
+
+assert.ok(cloudflareDetection, "Cloudflare should be detected");
+assert.equal(cloudflareDetection.id, "cloudflare");
+assert.equal(cloudflareDetection.version, null);
+assert.equal(cloudflareDetection.versionInfo.status, "unknown");
+assert.equal(cloudflareDetection.cve.eligible, false);
+
+console.log("PASS: Cloudflare detection preserves unknown-version safety");
+
+// Apache ECharts metadata validation
+const echartsRule = RULES.find((item) => item.name === "Apache ECharts");
+
+assert.ok(echartsRule, "Apache ECharts rule should exist");
+assert.equal(echartsRule.id, "apache-echarts");
+assert.equal(echartsRule.product.vendor, "apache");
+assert.equal(echartsRule.product.name, "echarts");
+assert.equal(echartsRule.product.cpe, null);
+assert.equal(echartsRule.product.cpeStatus, "unmapped");
+assert.equal(echartsRule.product.purl, "pkg:npm/echarts");
+assert.deepEqual(echartsRule.product.aliases, []);
+assert.equal(echartsRule.product.versionScope, "client");
+
+console.log("PASS: Apache ECharts metadata");
+
+// Tailwind CSS metadata validation
+const tailwindRule = RULES.find((item) => item.name === "Tailwind CSS");
+
+assert.ok(tailwindRule, "Tailwind CSS rule should exist");
+assert.equal(tailwindRule.id, "tailwindcss");
+assert.equal(tailwindRule.product.vendor, "tailwindlabs");
+assert.equal(tailwindRule.product.name, "tailwindcss");
+assert.equal(tailwindRule.product.cpe, null);
+assert.equal(tailwindRule.product.cpeStatus, "unmapped");
+assert.equal(tailwindRule.product.purl, "pkg:npm/tailwindcss");
+assert.equal(tailwindRule.product.versionScope, "unknown");
+
+console.log("PASS: Tailwind CSS metadata is valid");
+
+// Umami Analytics detection and metadata
+const umamiDetection = detect({
+  page: {
+    scripts: ["https://cloud.umami.is/script.js"],
+  },
+}).find((item) => item.name === "Umami");
+
+assert.ok(umamiDetection, "Umami should be detected");
+assert.equal(umamiDetection.id, "umami");
+assert.equal(umamiDetection.product.vendor, "Umami");
+assert.equal(umamiDetection.product.name, "Umami");
+assert.equal(umamiDetection.product.cpe, null);
+assert.equal(umamiDetection.product.cpeStatus, "unmapped");
+assert.equal(umamiDetection.product.purl, null);
+assert.equal(umamiDetection.product.versionScope, "unknown");
+
+console.log("PASS: Umami Analytics detection and metadata");
+
+// Pirsch Analytics detection and metadata
+const pirschDetection = detect({
+  page: {
+    scripts: ["https://api.pirsch.io/pa.js"],
+  },
+}).find((item) => item.name === "Pirsch Analytics");
+
+assert.ok(pirschDetection, "Pirsch Analytics should be detected");
+assert.equal(pirschDetection.id, "pirsch-analytics");
+assert.equal(pirschDetection.product.vendor, "Pirsch");
+assert.equal(pirschDetection.product.name, "Pirsch Analytics");
+assert.equal(pirschDetection.product.cpe, null);
+assert.equal(pirschDetection.product.cpeStatus, "unmapped");
+assert.equal(pirschDetection.product.purl, null);
+assert.equal(pirschDetection.product.versionScope, "unknown");
+assert.equal(pirschDetection.version, null);
+assert.equal(pirschDetection.versionInfo.status, "unknown");
+assert.equal(pirschDetection.cve.eligible, false);
+
+console.log("PASS: Pirsch Analytics detection and metadata");
+
+// Yandex Metrica detection and metadata
+const yandexMetricaDetection = detect({
+  page: {
+    scripts: ["https://mc.yandex.ru/metrika/tag.js"],
+  },
+}).find((item) => item.name === "Yandex Metrica");
+
+assert.ok(yandexMetricaDetection, "Yandex Metrica should be detected");
+assert.equal(yandexMetricaDetection.id, "yandex-metrica");
+assert.equal(yandexMetricaDetection.product.vendor, "Yandex");
+assert.equal(yandexMetricaDetection.product.cpe, null);
+assert.equal(yandexMetricaDetection.product.cpeStatus, "unmapped");
+assert.equal(yandexMetricaDetection.product.purl, null);
+assert.equal(yandexMetricaDetection.product.versionScope, "unknown");
+assert.equal(yandexMetricaDetection.version, null);
+assert.equal(yandexMetricaDetection.versionInfo.status, "unknown");
+assert.equal(yandexMetricaDetection.cve.eligible, false);
+
+// The watch endpoint is not the JavaScript library
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://mc.yandex.ru/watch/123456"],
+    },
+  }).includes("Yandex Metrica"),
+  "Yandex Metrica should not be detected from the watch image endpoint alone",
+);
+
+console.log("PASS: Yandex Metrica detection and metadata");
+
+// Adobe Analytics detection and metadata
+const adobeAnalyticsDetection = detect({
+  page: {
+    scripts: ["https://example.com/scripts/AppMeasurement.js"],
+  },
+}).find((item) => item.name === "Adobe Analytics");
+
+assert.ok(adobeAnalyticsDetection, "Adobe Analytics should be detected");
+assert.equal(adobeAnalyticsDetection.id, "adobe-analytics");
+assert.equal(adobeAnalyticsDetection.product.vendor, "Adobe");
+assert.equal(adobeAnalyticsDetection.product.name, "Adobe Analytics");
+assert.equal(adobeAnalyticsDetection.product.cpe, null);
+assert.equal(adobeAnalyticsDetection.product.cpeStatus, "unmapped");
+assert.equal(adobeAnalyticsDetection.product.purl, null);
+assert.equal(adobeAnalyticsDetection.product.versionScope, "unknown");
+assert.equal(adobeAnalyticsDetection.version, null);
+assert.equal(adobeAnalyticsDetection.versionInfo.status, "unknown");
+assert.equal(adobeAnalyticsDetection.cve.eligible, false);
+
+// Adobe tag manager alone should not identify Adobe Analytics
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://assets.adobedtm.com/launch-EN123.min.js"],
+    },
+  }).includes("Adobe Analytics"),
+  "Adobe tag manager alone should not trigger Adobe Analytics detection",
+);
+
+// Alloy Web SDK alone should not identify Adobe Analytics
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://cdn1.adoberesources.net/alloy/2.19.1/alloy.js"],
+    },
+  }).includes("Adobe Analytics"),
+  "Alloy alone should not trigger Adobe Analytics detection",
+);
+
+console.log("PASS: Adobe Analytics detection and metadata");
+
+// Amplitude detection and metadata
+const amplitudeLegacyDetection = detect({
+  page: {
+    scripts: ["https://cdn.amplitude.com/libs/amplitude-8.21.4-min.gz.js"],
+  },
+}).find((item) => item.name === "Amplitude");
+
+const amplitudeUnifiedDetection = detect({
+  page: {
+    scripts: ["https://cdn.amplitude.com/script/EXAMPLE_API_KEY.js"],
+  },
+}).find((item) => item.name === "Amplitude");
+
+assert.ok(amplitudeLegacyDetection, "Amplitude legacy SDK should be detected");
+assert.ok(
+  amplitudeUnifiedDetection,
+  "Amplitude Unified Script should be detected",
+);
+
+for (const amplitudeDetection of [
+  amplitudeLegacyDetection,
+  amplitudeUnifiedDetection,
+]) {
+  assert.equal(amplitudeDetection.id, "amplitude");
+  assert.equal(amplitudeDetection.product.vendor, "Amplitude");
+  assert.equal(amplitudeDetection.product.name, "Amplitude Analytics");
+  assert.equal(amplitudeDetection.product.cpe, null);
+  assert.equal(amplitudeDetection.product.cpeStatus, "unmapped");
+  assert.equal(amplitudeDetection.product.purl, null);
+  assert.equal(amplitudeDetection.product.versionScope, "unknown");
+  assert.equal(amplitudeDetection.version, null);
+  assert.equal(amplitudeDetection.versionInfo.status, "unknown");
+  assert.equal(amplitudeDetection.cve.eligible, false);
+}
+
+// A generic Amplitude domain reference should not trigger detection
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://example.com/amplitude.com/libs/other.js"],
+    },
+  }).includes("Amplitude"),
+  "Generic Amplitude text should not trigger detection",
+);
+
+console.log("PASS: Amplitude detection and metadata");
+
+// Google Analytics detection and metadata
+const googleAnalyticsUrls = [
+  "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",
+  "https://www.google-analytics.com/analytics.js",
+  "https://www.google-analytics.com/ga.js",
+];
+
+for (const url of googleAnalyticsUrls) {
+  const googleAnalyticsDetection = detect({
+    page: {
+      scripts: [url],
+    },
+  }).find((item) => item.name === "Google Analytics");
+
+  assert.ok(
+    googleAnalyticsDetection,
+    `Google Analytics should be detected from ${url}`,
+  );
+
+  assert.equal(googleAnalyticsDetection.id, "google-analytics");
+  assert.equal(googleAnalyticsDetection.product.vendor, "Google");
+  assert.equal(googleAnalyticsDetection.product.name, "Google Analytics");
+  assert.equal(googleAnalyticsDetection.product.cpe, null);
+  assert.equal(googleAnalyticsDetection.product.cpeStatus, "unmapped");
+  assert.equal(googleAnalyticsDetection.product.purl, null);
+  assert.equal(googleAnalyticsDetection.product.versionScope, "unknown");
+  assert.equal(googleAnalyticsDetection.version, null);
+  assert.equal(googleAnalyticsDetection.versionInfo.status, "unknown");
+  assert.equal(googleAnalyticsDetection.cve.eligible, false);
+}
+
+// gtag global alone must not trigger Google Analytics
+assert.ok(
+  !names({
+    page: {
+      globals: ["gtag"],
+    },
+  }).includes("Google Analytics"),
+  "gtag alone should not trigger Google Analytics detection",
+);
+
+console.log("PASS: Google Analytics detection and metadata");
+
+// PostHog detection and metadata
+const posthogCases = [
+  {
+    page: {
+      globals: ["posthog"],
+    },
+  },
+  {
+    page: {
+      scripts: ["https://us-assets.i.posthog.com/static/array.js"],
+    },
+  },
+  {
+    page: {
+      resources: ["https://us.i.posthog.com/e/"],
+    },
+  },
+  {
+    page: {
+      resources: ["https://eu.i.posthog.com/e/"],
+    },
+  },
+];
+
+for (const input of posthogCases) {
+  const posthogDetection = detect(input).find(
+    (item) => item.name === "PostHog",
+  );
+
+  assert.ok(posthogDetection, "PostHog should be detected");
+
+  assert.equal(posthogDetection.id, "posthog");
+  assert.equal(posthogDetection.product.vendor, "PostHog");
+  assert.equal(posthogDetection.product.name, "PostHog");
+  assert.equal(posthogDetection.product.cpe, null);
+  assert.equal(posthogDetection.product.cpeStatus, "unmapped");
+  assert.equal(posthogDetection.product.purl, "pkg:npm/posthog-js");
+  assert.equal(posthogDetection.product.versionScope, "client");
+  assert.equal(posthogDetection.version, null);
+  assert.equal(posthogDetection.versionInfo.status, "unknown");
+  assert.equal(posthogDetection.cve.eligible, false);
+}
+
+// Generic script text should not trigger PostHog
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://example.com/scripts/posthog-helper.js"],
+    },
+  }).includes("PostHog"),
+  "Generic PostHog script text should not trigger detection",
+);
+
+console.log("PASS: PostHog detection and metadata");
+
+// Google Tag Manager detection and metadata
+const gtmDetection = detect({
+  page: {
+    scripts: ["https://www.googletagmanager.com/gtm.js?id=GTM-ABC123"],
+  },
+}).find((item) => item.name === "Google Tag Manager");
+
+assert.ok(gtmDetection, "Google Tag Manager should be detected");
+assert.equal(gtmDetection.id, "google-tag-manager");
+assert.equal(gtmDetection.product.vendor, "Google");
+assert.equal(gtmDetection.product.name, "Google Tag Manager");
+assert.equal(gtmDetection.product.cpe, null);
+assert.equal(gtmDetection.product.cpeStatus, "unmapped");
+assert.equal(gtmDetection.product.purl, null);
+assert.equal(gtmDetection.product.versionScope, "unknown");
+assert.equal(gtmDetection.version, null);
+assert.equal(gtmDetection.versionInfo.status, "unknown");
+assert.equal(gtmDetection.cve.eligible, false);
+
+// The Google tag gtag.js alone must not trigger GTM
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"],
+    },
+  }).includes("Google Tag Manager"),
+  "gtag.js alone should not trigger Google Tag Manager detection",
+);
+
+console.log("PASS: Google Tag Manager detection and metadata");
 
 console.log("PASS: All detector baseline and false-positive tests passed");
