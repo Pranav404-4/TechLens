@@ -949,6 +949,11 @@ assert.equal(
   "cpe:2.3:a:microsoft:internet_information_services:*:*:*:*:*:*:*:*",
 );
 assert.equal(iisRule.product.cpeStatus, "verified");
+assert.equal(iisRule.product.purl, null);
+assert.deepEqual(iisRule.product.aliases, [
+  "IIS",
+  "Internet Information Services",
+]);
 assert.equal(iisRule.product.versionScope, "server");
 
 console.log("PASS: Microsoft IIS metadata");
@@ -968,6 +973,27 @@ assert.equal(iisDetection.cve.version, null);
 
 console.log("PASS: Microsoft IIS detection preserves unknown-version safety");
 
+// Microsoft IIS version extraction
+const iisVersionDetection = detect({
+  page: {},
+  headers: [{ name: "Server", value: "Microsoft-IIS/10.0" }],
+}).find((item) => item.name === "Microsoft IIS");
+
+assert.ok(iisVersionDetection, "Versioned IIS header should be detected");
+assert.equal(iisVersionDetection.version, "10.0");
+
+console.log("PASS: Microsoft IIS version extraction");
+
+// Microsoft IIS false-positive protection
+assert.ok(
+  !names({
+    headers: [{ name: "Server", value: "Example-Microsoft-IIS-Helper" }],
+  }).includes("Microsoft IIS"),
+  "Unrelated server header must not trigger IIS detection",
+);
+
+console.log("PASS: Microsoft IIS false-positive protection");
+
 // OpenResty metadata validation
 const openRestyRule = RULES.find((item) => item.name === "OpenResty");
 
@@ -980,6 +1006,8 @@ assert.equal(
   "cpe:2.3:a:openresty:openresty:*:*:*:*:*:*:*:*",
 );
 assert.equal(openRestyRule.product.cpeStatus, "verified");
+assert.equal(openRestyRule.product.purl, "pkg:generic/openresty");
+assert.deepEqual(openRestyRule.product.aliases, []);
 assert.equal(openRestyRule.product.versionScope, "server");
 
 console.log("PASS: OpenResty metadata");
@@ -1002,6 +1030,30 @@ assert.equal(openRestyDetection.cve.version, null);
 
 console.log("PASS: OpenResty detection preserves unknown-version safety");
 
+// OpenResty version extraction
+const openRestyVersionDetection = detect({
+  page: {},
+  headers: [{ name: "Server", value: "openresty/1.25.3.1" }],
+}).find((item) => item.name === "OpenResty");
+
+assert.ok(
+  openRestyVersionDetection,
+  "Versioned OpenResty header should be detected",
+);
+assert.equal(openRestyVersionDetection.version, "1.25.3.1");
+
+console.log("PASS: OpenResty version extraction");
+
+// OpenResty false-positive protection
+assert.ok(
+  !names({
+    headers: [{ name: "Server", value: "Example-OpenResty-Helper" }],
+  }).includes("OpenResty"),
+  "Unrelated server header must not trigger OpenResty detection",
+);
+
+console.log("PASS: OpenResty false-positive protection");
+
 // Envoy metadata validation
 const envoyRule = RULES.find((item) => item.name === "Envoy");
 
@@ -1014,6 +1066,8 @@ assert.equal(
   "cpe:2.3:a:envoyproxy:envoy:*:*:*:*:*:*:*:*",
 );
 assert.equal(envoyRule.product.cpeStatus, "verified");
+assert.equal(envoyRule.product.purl, "pkg:generic/envoy");
+assert.deepEqual(envoyRule.product.aliases, []);
 assert.equal(envoyRule.product.versionScope, "server");
 
 console.log("PASS: Envoy metadata");
@@ -1033,6 +1087,27 @@ assert.equal(envoyDetection.cve.version, null);
 
 console.log("PASS: Envoy detection preserves unknown-version safety");
 
+// Envoy version extraction
+const envoyVersionDetection = detect({
+  page: {},
+  headers: [{ name: "Server", value: "envoy/1.32.0" }],
+}).find((item) => item.name === "Envoy");
+
+assert.ok(envoyVersionDetection, "Versioned Envoy header should be detected");
+assert.equal(envoyVersionDetection.version, "1.32.0");
+
+console.log("PASS: Envoy version extraction");
+
+// Envoy false-positive protection
+assert.ok(
+  !names({
+    headers: [{ name: "Server", value: "Example-Envoy-Helper" }],
+  }).includes("Envoy"),
+  "Unrelated server header must not trigger Envoy detection",
+);
+
+console.log("PASS: Envoy false-positive protection");
+
 // Gunicorn metadata validation
 const gunicornRule = RULES.find((item) => item.name === "Gunicorn");
 
@@ -1045,6 +1120,8 @@ assert.equal(
   "cpe:2.3:a:gunicorn:gunicorn:*:*:*:*:*:*:*:*",
 );
 assert.equal(gunicornRule.product.cpeStatus, "verified");
+assert.equal(gunicornRule.product.purl, "pkg:pypi/gunicorn");
+assert.deepEqual(gunicornRule.product.aliases, []);
 assert.equal(gunicornRule.product.versionScope, "server");
 
 console.log("PASS: Gunicorn metadata");
@@ -1063,6 +1140,30 @@ assert.equal(gunicornDetection.cve.eligible, false);
 assert.equal(gunicornDetection.cve.version, null);
 
 console.log("PASS: Gunicorn detection preserves unknown-version safety");
+
+// Gunicorn version extraction
+const gunicornVersionDetection = detect({
+  page: {},
+  headers: [{ name: "Server", value: "gunicorn/23.0.0" }],
+}).find((item) => item.name === "Gunicorn");
+
+assert.ok(
+  gunicornVersionDetection,
+  "Versioned Gunicorn header should be detected",
+);
+assert.equal(gunicornVersionDetection.version, "23.0.0");
+
+console.log("PASS: Gunicorn version extraction");
+
+// Gunicorn false-positive protection
+assert.ok(
+  !names({
+    headers: [{ name: "Server", value: "Example-Gunicorn-Helper" }],
+  }).includes("Gunicorn"),
+  "Unrelated server header must not trigger Gunicorn detection",
+);
+
+console.log("PASS: Gunicorn false-positive protection");
 
 // Uvicorn metadata validation
 const uvicornRule = RULES.find((item) => item.name === "Uvicorn");
@@ -1988,5 +2089,467 @@ assert.ok(
 );
 
 console.log("PASS: Google Tag Manager detection and metadata");
+
+// Netlify detection and metadata
+const netlifyDetection = detect({
+  page: {},
+  headers: [{ name: "x-nf-request-id", value: "example-request-id" }],
+}).find((item) => item.name === "Netlify");
+
+assert.ok(netlifyDetection, "Netlify should be detected");
+assert.equal(netlifyDetection.id, "netlify");
+assert.equal(netlifyDetection.product.vendor, "Netlify");
+assert.equal(netlifyDetection.product.name, "Netlify");
+assert.equal(netlifyDetection.product.cpe, null);
+assert.equal(netlifyDetection.product.cpeStatus, "unmapped");
+assert.equal(netlifyDetection.product.purl, null);
+assert.equal(netlifyDetection.version, null);
+assert.equal(netlifyDetection.versionInfo.status, "unknown");
+assert.equal(netlifyDetection.cve.eligible, false);
+
+assert.ok(
+  !names({
+    page: {},
+    headers: [{ name: "x-request-id", value: "12345" }],
+  }).includes("Netlify"),
+  "Generic request ID must not identify Netlify",
+);
+
+console.log("PASS: Netlify detection and metadata");
+
+// Render detection and metadata
+const renderDetection = detect({
+  page: {},
+  headers: [{ name: "x-render-origin-server", value: "Render" }],
+}).find((item) => item.name === "Render");
+
+assert.ok(renderDetection, "Render should be detected");
+assert.equal(renderDetection.id, "render");
+assert.equal(renderDetection.product.vendor, "Render");
+assert.equal(renderDetection.product.name, "Render");
+assert.equal(renderDetection.product.cpe, null);
+assert.equal(renderDetection.product.cpeStatus, "unmapped");
+assert.equal(renderDetection.product.purl, null);
+assert.equal(renderDetection.version, null);
+assert.equal(renderDetection.versionInfo.status, "unknown");
+assert.equal(renderDetection.cve.eligible, false);
+
+assert.ok(
+  !names({
+    page: {},
+    headers: [{ name: "server", value: "Render" }],
+  }).includes("Render"),
+  "Server header alone must not identify Render",
+);
+
+console.log("PASS: Render detection and metadata");
+
+// Vercel detection and metadata
+const vercelDetection = detect({
+  page: {},
+  headers: [{ name: "x-vercel-id", value: "iad1::example-id" }],
+}).find((item) => item.name === "Vercel");
+
+assert.ok(vercelDetection, "Vercel should be detected");
+assert.equal(vercelDetection.id, "vercel");
+assert.equal(vercelDetection.product.vendor, "Vercel");
+assert.equal(vercelDetection.product.name, "Vercel");
+assert.equal(vercelDetection.product.cpe, null);
+assert.equal(vercelDetection.product.cpeStatus, "unmapped");
+assert.equal(vercelDetection.product.purl, null);
+assert.equal(vercelDetection.version, null);
+assert.equal(vercelDetection.versionInfo.status, "unknown");
+assert.equal(vercelDetection.cve.eligible, false);
+
+assert.ok(
+  !names({
+    page: {},
+    headers: [{ name: "x-request-id", value: "12345" }],
+  }).includes("Vercel"),
+  "Generic request ID must not identify Vercel",
+);
+
+console.log("PASS: Vercel detection and metadata");
+
+// Alpine.js detection and metadata
+const alpineScriptDetection = detect({
+  page: {
+    scripts: ["https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"],
+  },
+}).find((item) => item.name === "Alpine.js");
+
+const alpineGlobalDetection = detect({
+  page: {
+    globals: ["Alpine"],
+  },
+}).find((item) => item.name === "Alpine.js");
+
+assert.ok(alpineScriptDetection, "Alpine.js CDN script should be detected");
+assert.ok(alpineGlobalDetection, "Alpine.js global should be detected");
+
+for (const alpineDetection of [alpineScriptDetection, alpineGlobalDetection]) {
+  assert.equal(alpineDetection.id, "alpine-js");
+  assert.equal(alpineDetection.product.vendor, "Alpine.js");
+  assert.equal(alpineDetection.product.name, "Alpine.js");
+  assert.equal(alpineDetection.product.cpe, null);
+  assert.equal(alpineDetection.product.cpeStatus, "unmapped");
+  assert.equal(alpineDetection.product.purl, "pkg:npm/alpinejs");
+  assert.equal(alpineDetection.product.versionScope, "client");
+  assert.equal(alpineDetection.version, null);
+  assert.equal(alpineDetection.versionInfo.status, "unknown");
+  assert.equal(alpineDetection.cve.eligible, false);
+}
+
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://example.com/alpine-helper.js"],
+    },
+  }).includes("Alpine.js"),
+  "Unrelated Alpine helper script must not trigger detection",
+);
+
+console.log("PASS: Alpine.js detection and metadata");
+
+// Axios detection and metadata
+const axiosMinDetection = detect({
+  page: {
+    scripts: ["https://unpkg.com/axios/dist/axios.min.js"],
+  },
+}).find((item) => item.name === "Axios");
+
+const axiosDetection = detect({
+  page: {
+    scripts: ["https://unpkg.com/axios/dist/axios.js"],
+  },
+}).find((item) => item.name === "Axios");
+
+assert.ok(axiosMinDetection, "Axios minified script should be detected");
+assert.ok(axiosDetection, "Axios script should be detected");
+
+for (const axiosResult of [axiosMinDetection, axiosDetection]) {
+  assert.equal(axiosResult.id, "axios");
+  assert.equal(axiosResult.product.vendor, "Axios");
+  assert.equal(axiosResult.product.name, "Axios");
+  assert.equal(axiosResult.product.cpe, null);
+  assert.equal(axiosResult.product.cpeStatus, "unmapped");
+  assert.equal(axiosResult.product.purl, "pkg:npm/axios");
+  assert.equal(axiosResult.product.versionScope, "client");
+  assert.equal(axiosResult.version, null);
+  assert.equal(axiosResult.versionInfo.status, "unknown");
+  assert.equal(axiosResult.cve.eligible, false);
+}
+
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://example.com/axios-helper.js"],
+    },
+  }).includes("Axios"),
+  "Unrelated Axios helper script must not trigger detection",
+);
+
+console.log("PASS: Axios detection and metadata");
+
+// D3.js detection and metadata
+const d3MinDetection = detect({
+  page: {
+    scripts: ["https://example.com/d3.min.js"],
+  },
+}).find((item) => item.name === "D3.js");
+
+const d3VersionedDetection = detect({
+  page: {
+    scripts: ["https://d3js.org/d3.v7.min.js"],
+  },
+}).find((item) => item.name === "D3.js");
+
+assert.ok(d3MinDetection, "D3.js minified script should be detected");
+assert.ok(d3VersionedDetection, "D3.js versioned script should be detected");
+
+for (const d3Detection of [d3MinDetection, d3VersionedDetection]) {
+  assert.equal(d3Detection.id, "d3");
+  assert.equal(d3Detection.product.vendor, "D3");
+  assert.equal(d3Detection.product.name, "D3");
+  assert.equal(d3Detection.product.cpe, null);
+  assert.equal(d3Detection.product.cpeStatus, "unmapped");
+  assert.equal(d3Detection.product.purl, "pkg:npm/d3");
+  assert.equal(d3Detection.product.versionScope, "client");
+  assert.equal(d3Detection.version, null);
+  assert.equal(d3Detection.versionInfo.status, "unknown");
+  assert.equal(d3Detection.cve.eligible, false);
+}
+
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://example.com/d3-helper.js"],
+    },
+  }).includes("D3.js"),
+  "Unrelated D3 helper script must not trigger detection",
+);
+
+console.log("PASS: D3.js detection and metadata");
+
+// GSAP detection and metadata
+const gsapScriptDetection = detect({
+  page: {
+    scripts: ["https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"],
+  },
+}).find((item) => item.name === "GSAP");
+
+const gsapGlobalDetection = detect({
+  page: {
+    globals: ["gsap"],
+  },
+}).find((item) => item.name === "GSAP");
+
+assert.ok(gsapScriptDetection, "GSAP script should be detected");
+assert.ok(gsapGlobalDetection, "GSAP global should be detected");
+
+for (const gsapDetection of [gsapScriptDetection, gsapGlobalDetection]) {
+  assert.equal(gsapDetection.id, "gsap");
+  assert.equal(gsapDetection.product.vendor, "GreenSock");
+  assert.equal(gsapDetection.product.name, "GSAP");
+  assert.equal(gsapDetection.product.cpe, null);
+  assert.equal(gsapDetection.product.cpeStatus, "unmapped");
+  assert.equal(gsapDetection.product.purl, "pkg:npm/gsap");
+  assert.equal(gsapDetection.product.versionScope, "client");
+  assert.equal(gsapDetection.version, null);
+  assert.equal(gsapDetection.versionInfo.status, "unknown");
+  assert.equal(gsapDetection.cve.eligible, false);
+}
+
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://example.com/greensock-helper.js"],
+    },
+  }).includes("GSAP"),
+  "Unrelated GreenSock helper must not trigger detection",
+);
+
+console.log("PASS: GSAP detection and metadata");
+
+// HTMX detection and metadata
+const htmxMinDetection = detect({
+  page: {
+    scripts: ["https://cdn.jsdelivr.net/npm/htmx.org@2.0.11/dist/htmx.min.js"],
+  },
+}).find((item) => item.name === "HTMX");
+
+const htmxScriptDetection = detect({
+  page: {
+    scripts: ["https://cdn.jsdelivr.net/npm/htmx.org@2.0.11/dist/htmx.js"],
+  },
+}).find((item) => item.name === "HTMX");
+
+const htmxGlobalDetection = detect({
+  page: {
+    globals: ["htmx"],
+  },
+}).find((item) => item.name === "HTMX");
+
+assert.ok(htmxMinDetection, "HTMX minified script should be detected");
+assert.ok(htmxScriptDetection, "HTMX unminified script should be detected");
+assert.ok(htmxGlobalDetection, "HTMX global should be detected");
+
+for (const htmxDetection of [
+  htmxMinDetection,
+  htmxScriptDetection,
+  htmxGlobalDetection,
+]) {
+  assert.equal(htmxDetection.id, "htmx");
+  assert.equal(htmxDetection.product.vendor, "Big Sky Software");
+  assert.equal(htmxDetection.product.name, "htmx");
+  assert.equal(htmxDetection.product.cpe, null);
+  assert.equal(htmxDetection.product.cpeStatus, "unmapped");
+  assert.equal(htmxDetection.product.purl, "pkg:npm/htmx.org");
+  assert.equal(htmxDetection.product.versionScope, "client");
+  assert.equal(htmxDetection.version, null);
+  assert.equal(htmxDetection.versionInfo.status, "unknown");
+  assert.equal(htmxDetection.cve.eligible, false);
+}
+
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://example.com/htmx-helper.js"],
+    },
+  }).includes("HTMX"),
+  "Unrelated HTMX helper script must not trigger detection",
+);
+
+console.log("PASS: HTMX detection and metadata");
+
+// jQuery detection and metadata
+const jqueryGlobalDetection = detect({
+  page: {
+    globals: ["jQuery"],
+  },
+}).find((item) => item.name === "jQuery");
+
+const jqueryResourceDetection = detect({
+  page: {
+    resources: ["https://code.jquery.com/jquery-4.0.0.min.js"],
+  },
+}).find((item) => item.name === "jQuery");
+
+assert.ok(jqueryGlobalDetection, "jQuery global should be detected");
+assert.ok(jqueryResourceDetection, "jQuery resource should be detected");
+
+for (const jqueryDetection of [
+  jqueryGlobalDetection,
+  jqueryResourceDetection,
+]) {
+  assert.equal(jqueryDetection.id, "jquery");
+  assert.equal(jqueryDetection.product.vendor, "OpenJS Foundation");
+  assert.equal(jqueryDetection.product.name, "jQuery");
+  assert.equal(
+    jqueryDetection.product.cpe,
+    "cpe:2.3:a:jquery:jquery:*:*:*:*:*:*:*:*",
+  );
+  assert.equal(jqueryDetection.product.cpeStatus, "verified");
+  assert.equal(jqueryDetection.product.purl, "pkg:npm/jquery");
+  assert.equal(jqueryDetection.product.versionScope, "client");
+}
+
+assert.ok(
+  !names({
+    page: {
+      resources: ["https://example.com/jquery-helper.js"],
+    },
+  }).includes("jQuery"),
+  "Unrelated jQuery helper resource must not trigger detection",
+);
+
+console.log("PASS: jQuery detection and metadata");
+
+// Lodash detection and metadata
+const lodashMinDetection = detect({
+  page: {
+    scripts: ["https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"],
+  },
+}).find((item) => item.name === "Lodash");
+
+const lodashScriptDetection = detect({
+  page: {
+    scripts: ["https://example.com/vendor/lodash.js"],
+  },
+}).find((item) => item.name === "Lodash");
+
+assert.ok(lodashMinDetection, "Lodash minified script should be detected");
+assert.ok(lodashScriptDetection, "Lodash script should be detected");
+
+for (const lodashDetection of [lodashMinDetection, lodashScriptDetection]) {
+  assert.equal(lodashDetection.id, "lodash");
+  assert.equal(lodashDetection.product.vendor, "OpenJS Foundation");
+  assert.equal(lodashDetection.product.name, "Lodash");
+  assert.equal(
+    lodashDetection.product.cpe,
+    "cpe:2.3:a:lodash:lodash:*:*:*:*:*:*:*:*",
+  );
+  assert.equal(lodashDetection.product.cpeStatus, "verified");
+  assert.equal(lodashDetection.product.purl, "pkg:npm/lodash");
+  assert.equal(lodashDetection.product.versionScope, "client");
+}
+
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://example.com/lodash-helper.js"],
+    },
+  }).includes("Lodash"),
+  "Unrelated Lodash helper script must not trigger detection",
+);
+
+console.log("PASS: Lodash detection and metadata");
+
+// Three.js detection and metadata
+const threeModuleDetection = detect({
+  page: {
+    scripts: [
+      "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
+    ],
+  },
+}).find((item) => item.name === "Three.js");
+
+const threeMinDetection = detect({
+  page: {
+    scripts: ["https://example.com/build/three.min.js"],
+  },
+}).find((item) => item.name === "Three.js");
+
+assert.ok(threeModuleDetection, "Three.js module should be detected");
+assert.ok(threeMinDetection, "Three.js minified script should be detected");
+
+for (const threeDetection of [threeModuleDetection, threeMinDetection]) {
+  assert.equal(threeDetection.id, "three-js");
+  assert.equal(threeDetection.product.vendor, "Three.js");
+  assert.equal(threeDetection.product.name, "Three.js");
+  assert.equal(threeDetection.product.cpe, null);
+  assert.equal(threeDetection.product.cpeStatus, "unmapped");
+  assert.equal(threeDetection.product.purl, "pkg:npm/three");
+  assert.equal(threeDetection.product.versionScope, "client");
+}
+
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://example.com/three-helper.js"],
+    },
+  }).includes("Three.js"),
+  "Unrelated Three.js helper script must not trigger detection",
+);
+
+console.log("PASS: Three.js detection and metadata");
+
+// Sentry detection and metadata
+const sentryCdnDetection = detect({
+  page: {
+    scripts: ["https://browser.sentry-cdn.com/11.0.0/bundle.min.js"],
+  },
+}).find((item) => item.name === "Sentry");
+
+const sentryGlobalDetection = detect({
+  page: {
+    globals: ["Sentry"],
+  },
+}).find((item) => item.name === "Sentry");
+
+const sentryInternalDetection = detect({
+  page: {
+    globals: ["__SENTRY__"],
+  },
+}).find((item) => item.name === "Sentry");
+
+assert.ok(sentryCdnDetection, "Sentry CDN script should be detected");
+assert.ok(sentryGlobalDetection, "Sentry global should be detected");
+assert.ok(sentryInternalDetection, "Sentry internal global should be detected");
+
+for (const sentryDetection of [
+  sentryCdnDetection,
+  sentryGlobalDetection,
+  sentryInternalDetection,
+]) {
+  assert.equal(sentryDetection.id, "sentry");
+  assert.equal(sentryDetection.product.vendor, "Sentry");
+  assert.equal(sentryDetection.product.name, "Sentry JavaScript SDK");
+  assert.equal(sentryDetection.product.cpe, null);
+  assert.equal(sentryDetection.product.cpeStatus, "unmapped");
+  assert.equal(sentryDetection.product.purl, "pkg:npm/%40sentry/browser");
+  assert.equal(sentryDetection.product.versionScope, "client");
+}
+
+assert.ok(
+  !names({
+    page: {
+      scripts: ["https://example.com/sentry-helper.js"],
+    },
+  }).includes("Sentry"),
+  "Unrelated Sentry helper script must not trigger detection",
+);
+
+console.log("PASS: Sentry detection and metadata");
 
 console.log("PASS: All detector baseline and false-positive tests passed");

@@ -1268,122 +1268,413 @@ const RULES = [
       versionScope: "unknown",
     },
     confidence: 90,
-    tests: [
-      ["header", "server:cloudflare"],
-      ["header", "cf-ray"],
-      ["cookie", "__cf_bm"],
+    signatures: [
+      {
+        type: "header",
+        pattern: "server:cloudflare",
+        match: "contains",
+        weight: 90,
+      },
+      {
+        type: "header",
+        pattern: "cf-ray",
+        match: "contains",
+        weight: 98,
+      },
+      {
+        type: "cookie",
+        pattern: "__cf_bm",
+        match: "contains",
+        weight: 90,
+      },
     ],
   },
   {
+    id: "netlify",
     name: "Netlify",
     category: "Hosting / Platform",
-    confidence: 90,
-    tests: [
-      ["header", "server:netlify"],
-      ["header", "x-nf-request-id"],
+    product: {
+      vendor: "Netlify",
+      name: "Netlify",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: null,
+      aliases: [],
+      versionScope: "unknown",
+    },
+    confidence: 95,
+    signatures: [
+      {
+        type: "header",
+        pattern: "x-nf-request-id",
+        match: "contains",
+        weight: 98,
+      },
+      {
+        type: "header",
+        pattern: "server:netlify",
+        match: "contains",
+        weight: 85,
+      },
     ],
   },
   {
+    id: "render",
     name: "Render",
     category: "Hosting / Platform",
-    confidence: 85,
-    tests: [
-      ["header", "server:render"],
-      ["header", "x-render-origin-server"],
+    product: {
+      vendor: "Render",
+      name: "Render",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: null,
+      aliases: [],
+      versionScope: "unknown",
+    },
+    confidence: 95,
+    signatures: [
+      {
+        type: "header",
+        pattern: "x-render-origin-server:render",
+        match: "contains",
+        weight: 98,
+      },
     ],
   },
   {
+    id: "vercel",
     name: "Vercel",
     category: "Hosting / Platform",
-    confidence: 90,
-    tests: [
-      ["header", "x-vercel-id"],
-      ["header", "server:vercel"],
+    product: {
+      vendor: "Vercel",
+      name: "Vercel",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: null,
+      aliases: [],
+      versionScope: "unknown",
+    },
+    confidence: 95,
+    signatures: [
+      {
+        type: "header",
+        pattern: "x-vercel-id",
+        match: "contains",
+        weight: 98,
+      },
+      {
+        type: "header",
+        pattern: "server:vercel",
+        match: "contains",
+        weight: 90,
+      },
     ],
   },
 
   // JavaScript libraries
   {
+    id: "alpine-js",
     name: "Alpine.js",
     category: "JavaScript library",
-    confidence: 90,
-    tests: [
-      ["script", "alpinejs"],
-      ["script", "alpine.min.js"],
+    product: {
+      vendor: "Alpine.js",
+      name: "Alpine.js",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:npm/alpinejs",
+      aliases: [],
+      versionScope: "client",
+    },
+    confidence: 95,
+    signatures: [
+      {
+        type: "script",
+        pattern: "dist/cdn.min.js",
+        match: "contains",
+        weight: 98,
+      },
+      {
+        type: "script",
+        pattern: "unpkg.com/alpinejs",
+        match: "contains",
+        weight: 95,
+      },
+      {
+        type: "global",
+        pattern: "Alpine",
+        match: "equals",
+        weight: 95,
+      },
     ],
   },
   {
+    id: "axios",
     name: "Axios",
     category: "JavaScript library",
-    confidence: 88,
-    tests: [
-      ["script", "axios.min.js"],
-      ["script", "axios.js"],
+    product: {
+      vendor: "Axios",
+      name: "Axios",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:npm/axios",
+      aliases: [],
+      versionScope: "client",
+    },
+    confidence: 95,
+    signatures: [
+      {
+        type: "script",
+        pattern: "axios/dist/axios.min.js",
+        match: "contains",
+        weight: 98,
+      },
+      {
+        type: "script",
+        pattern: "axios/dist/axios.js",
+        match: "contains",
+        weight: 95,
+      },
+      {
+        type: "global",
+        pattern: "axios",
+        match: "equals",
+        weight: 95,
+      },
     ],
   },
   {
+    id: "d3",
     name: "D3.js",
     category: "JavaScript library",
-    confidence: 88,
-    tests: [
-      ["script", "d3.min.js"],
-      ["script", "d3.v"],
+    product: {
+      vendor: "D3",
+      name: "D3",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:npm/d3",
+      aliases: [],
+      versionScope: "client",
+    },
+    confidence: 95,
+    signatures: [
+      {
+        type: "script",
+        pattern: "d3.min.js",
+        match: "contains",
+        weight: 98,
+      },
+      {
+        type: "script",
+        pattern: "d3.v",
+        match: "contains",
+        weight: 95,
+      },
     ],
   },
   {
+    id: "gsap",
     name: "GSAP",
     category: "JavaScript library",
-    confidence: 90,
-    tests: [
-      ["script", "gsap.min.js"],
-      ["script", "greensock.com"],
+    product: {
+      vendor: "GreenSock",
+      name: "GSAP",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:npm/gsap",
+      aliases: ["GreenSock Animation Platform"],
+      versionScope: "client",
+    },
+    confidence: 95,
+    signatures: [
+      {
+        type: "script",
+        pattern: "gsap.min.js",
+        match: "contains",
+        weight: 98,
+      },
+      {
+        type: "global",
+        pattern: "gsap",
+        match: "equals",
+        weight: 95,
+      },
     ],
   },
   {
+    id: "htmx",
     name: "HTMX",
     category: "JavaScript library",
-    confidence: 92,
-    tests: [
-      ["script", "htmx.org"],
-      ["script", "htmx.min.js"],
+    product: {
+      vendor: "Big Sky Software",
+      name: "htmx",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:npm/htmx.org",
+      aliases: [],
+      versionScope: "client",
+    },
+    confidence: 95,
+    signatures: [
+      {
+        type: "script",
+        pattern: "htmx.min.js",
+        match: "contains",
+        weight: 98,
+      },
+      {
+        type: "script",
+        pattern: "htmx.js",
+        match: "contains",
+        weight: 95,
+      },
+      {
+        type: "global",
+        pattern: "htmx",
+        match: "equals",
+        weight: 95,
+      },
     ],
   },
   {
+    id: "jquery",
     name: "jQuery",
     category: "JavaScript library",
+    product: {
+      vendor: "OpenJS Foundation",
+      name: "jQuery",
+      cpe: "cpe:2.3:a:jquery:jquery:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:npm/jquery",
+      aliases: [],
+      versionScope: "client",
+    },
     confidence: 96,
-    tests: [
-      ["global", "jQuery"],
-      ["resource", "jquery"],
+    signatures: [
+      {
+        type: "global",
+        pattern: "jQuery",
+        match: "equals",
+        weight: 98,
+      },
+      {
+        type: "resource",
+        pattern: "code.jquery.com/jquery-",
+        match: "contains",
+        weight: 95,
+      },
+      {
+        type: "resource",
+        pattern: "jquery.min.js",
+        match: "contains",
+        weight: 95,
+      },
+      {
+        type: "resource",
+        pattern: "jquery.js",
+        match: "contains",
+        weight: 95,
+      },
     ],
   },
   {
+    id: "lodash",
     name: "Lodash",
     category: "JavaScript library",
-    confidence: 85,
-    tests: [["script", "lodash"]],
+    product: {
+      vendor: "OpenJS Foundation",
+      name: "Lodash",
+      cpe: "cpe:2.3:a:lodash:lodash:*:*:*:*:*:*:*:*",
+      cpeStatus: "verified",
+      purl: "pkg:npm/lodash",
+      aliases: [],
+      versionScope: "client",
+    },
+    confidence: 95,
+    signatures: [
+      {
+        type: "global",
+        pattern: "_",
+        match: "equals",
+        weight: 95,
+      },
+      {
+        type: "script",
+        pattern: "lodash.min.js",
+        match: "contains",
+        weight: 98,
+      },
+      {
+        type: "script",
+        pattern: "lodash.js",
+        match: "contains",
+        weight: 95,
+      },
+    ],
   },
   {
+    id: "three-js",
     name: "Three.js",
     category: "JavaScript library",
-    confidence: 90,
-    tests: [
-      ["script", "three.min.js"],
-      ["script", "three.module.js"],
+    product: {
+      vendor: "Three.js",
+      name: "Three.js",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:npm/three",
+      aliases: [],
+      versionScope: "client",
+    },
+    confidence: 95,
+    signatures: [
+      {
+        type: "script",
+        pattern: "three.module.js",
+        match: "contains",
+        weight: 98,
+      },
+      {
+        type: "script",
+        pattern: "three.min.js",
+        match: "contains",
+        weight: 95,
+      },
     ],
   },
 
   // Monitoring
-  // Monitoring
   {
+    id: "sentry",
     name: "Sentry",
     category: "Monitoring",
-    confidence: 90,
-    tests: [
-      ["script", "browser.sentry-cdn.com"],
-      ["script", "sentry.io"],
-      ["script", "/sentry."],
-      ["global", "__SENTRY__"],
+    product: {
+      vendor: "Sentry",
+      name: "Sentry JavaScript SDK",
+      cpe: null,
+      cpeStatus: "unmapped",
+      purl: "pkg:npm/%40sentry/browser",
+      aliases: [],
+      versionScope: "client",
+    },
+    confidence: 95,
+    signatures: [
+      {
+        type: "script",
+        pattern: "browser.sentry-cdn.com",
+        match: "contains",
+        weight: 98,
+      },
+      {
+        type: "global",
+        pattern: "Sentry",
+        match: "equals",
+        weight: 95,
+      },
+      {
+        type: "global",
+        pattern: "__SENTRY__",
+        match: "equals",
+        weight: 95,
+      },
     ],
   },
   {
@@ -1400,35 +1691,46 @@ const RULES = [
       versionScope: "server",
     },
     confidence: 95,
-    tests: [
-      ["global", "grafanaBootData"],
-      ["script", "grafana"],
+    signatures: [
+      {
+        type: "global",
+        pattern: "grafanaBootData",
+        match: "equals",
+        weight: 98,
+      },
     ],
   },
 
   // Web servers, caches and proxies
 
   {
-    name: "Microsoft IIS",
     id: "microsoft-iis",
+    name: "Microsoft IIS",
     category: "Web server",
-    confidence: 92,
     product: {
       vendor: "microsoft",
       name: "internet_information_services",
       cpe: "cpe:2.3:a:microsoft:internet_information_services:*:*:*:*:*:*:*:*",
       cpeStatus: "verified",
-      purl: "pkg:generic/microsoft/internet-information-services",
-      aliases: [],
+      purl: null,
+      aliases: ["IIS", "Internet Information Services"],
       versionScope: "server",
     },
-    tests: [["header", "server:microsoft-iis"]],
+    confidence: 95,
+    signatures: [
+      {
+        type: "header",
+        pattern: "server:microsoft-iis",
+        match: "contains",
+        weight: 98,
+      },
+    ],
   },
+
   {
-    name: "OpenResty",
     id: "openresty",
+    name: "OpenResty",
     category: "Web server",
-    confidence: 92,
     product: {
       vendor: "openresty",
       name: "openresty",
@@ -1438,13 +1740,20 @@ const RULES = [
       aliases: [],
       versionScope: "server",
     },
-    tests: [["header", "server:openresty"]],
+    confidence: 95,
+    signatures: [
+      {
+        type: "header",
+        pattern: "server:openresty",
+        match: "contains",
+        weight: 98,
+      },
+    ],
   },
   {
-    name: "Envoy",
     id: "envoy",
+    name: "Envoy",
     category: "Web server / Proxy",
-    confidence: 90,
     product: {
       vendor: "envoyproxy",
       name: "envoy",
@@ -1454,13 +1763,21 @@ const RULES = [
       aliases: [],
       versionScope: "server",
     },
-    tests: [["header", "server:envoy"]],
+    confidence: 95,
+    signatures: [
+      {
+        type: "header",
+        pattern: "server:envoy",
+        match: "contains",
+        weight: 98,
+      },
+    ],
   },
+
   {
-    name: "Gunicorn",
     id: "gunicorn",
+    name: "Gunicorn",
     category: "Application server",
-    confidence: 90,
     product: {
       vendor: "gunicorn",
       name: "gunicorn",
@@ -1470,8 +1787,17 @@ const RULES = [
       aliases: [],
       versionScope: "server",
     },
-    tests: [["header", "server:gunicorn"]],
+    confidence: 95,
+    signatures: [
+      {
+        type: "header",
+        pattern: "server:gunicorn",
+        match: "contains",
+        weight: 98,
+      },
+    ],
   },
+
   {
     name: "Uvicorn",
     id: "uvicorn",
