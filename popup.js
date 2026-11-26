@@ -519,6 +519,11 @@ async function scan() {
       version: detection.version || null,
       versionInfo: detection.versionInfo || null,
       cve: detection.cve || null,
+      cveLookup: {
+        status: "not_checked",
+        fetchedAt: null,
+        vulnerabilities: [],
+      },
       evidence: Array.isArray(detection.evidence) ? detection.evidence : [],
       sourceUrl: tab.url,
     }));
@@ -558,6 +563,16 @@ function renderSecurityInsights() {
 
   const configurations = securityFindings.filter(
     (finding) => finding.category === "Security Configuration",
+  );
+
+  const highRiskFindings = securityFindings.filter(
+    (finding) =>
+      ["Critical", "High"].includes(finding.severity) &&
+      finding.category !== "Hardening Recommendation",
+  );
+
+  const informationalFindings = securityFindings.filter(
+    (finding) => finding.severity === "Informational",
   );
 
   // Informational disclosures and recommendations do not add risk points.
@@ -607,7 +622,11 @@ function renderSecurityInsights() {
   container.innerHTML = `
     <div class="risk-priority">
       <strong>Security Priority: ${priorityScore}/100</strong>
-      <span>${esc(priorityLabel)}</span>
+      <span class="risk-priority-label ${priorityLabel
+        .toLowerCase()
+        .replace(/\s+/g, "-")}">
+  ${esc(priorityLabel)}
+</span>
       <p>
         Heuristic indicator based on observed header findings.
         This is not a vulnerability probability or a complete security assessment.
@@ -615,6 +634,14 @@ function renderSecurityInsights() {
     </div>
 
     <div class="risk-summary">
+          <div class="risk-summary-item">
+        <strong>${highRiskFindings.length}</strong>
+        <span>High-Risk Findings</span>
+      </div>
+      <div class="risk-summary-item">
+        <strong>${informationalFindings.length}</strong>
+        <span>Informational Findings</span>
+      </div>
       <div class="risk-summary-item">
         <strong>${disclosures.length}</strong>
         <span>Information Disclosure</span>
@@ -635,7 +662,11 @@ function renderSecurityInsights() {
       <article class="risk-card">
         <div class="risk-card-heading">
           <strong>${esc(finding.title)}</strong>
-          <span class="risk-severity">${esc(finding.severity)}</span>
+          <span class="risk-severity ${esc(
+            String(finding.severity || "unknown").toLowerCase(),
+          )}">
+  ${esc(finding.severity || "Unknown")}
+</span>
         </div>
         <p>${esc(finding.description)}</p>
         ${
@@ -735,13 +766,19 @@ $("results").addEventListener("click", async (event) => {
 
     const vulnerabilities = response.data?.vulnerabilities || [];
 
+    detection.cveLookup = {
+      status: "completed",
+      fetchedAt: new Date().toISOString(),
+      vulnerabilities,
+    };
+
     if (vulnerabilities.length === 0) {
       content.innerHTML = `
-        <p class="cve-empty">
-          No CVE records were returned for this product.
-          This does not mean the product is vulnerability-free.
-        </p>
-      `;
+    <p class="cve-empty">
+      No CVE records were returned for this product.
+      This does not mean the product is vulnerability-free.
+    </p>
+  `;
     } else {
       content.innerHTML = vulnerabilities
         .map((cve) => {
@@ -750,35 +787,52 @@ $("results").addEventListener("click", async (event) => {
             ? ` · ${cve.cvss.score}`
             : "";
 
+          const severityKey = severity.toLowerCase();
+          const severityClass = ["critical", "high", "medium", "low"].includes(
+            severityKey,
+          )
+            ? severityKey
+            : "unknown";
+
+          const applicability =
+            cve.applicability === "affected"
+              ? {
+                  label: "Affected",
+                  className: "affected",
+                }
+              : cve.applicability === "not_affected"
+                ? {
+                    label: "Not affected",
+                    className: "not-affected",
+                  }
+                : {
+                    label: "Unconfirmed",
+                    className: "unconfirmed",
+                  };
+
           return `
-            <article class="cve-card">
-              <div class="cve-card-heading">
-                <span class="cve-id">${esc(cve.id)}</span>
-                <span class="cve-severity">
-                  ${esc(severity)}${esc(score)}
-                </span>
-              </div>
+        <article class="cve-card">
+          <div class="cve-card-heading">
+            <span class="cve-id">${esc(cve.id)}</span>
+            <span class="cve-severity cve-severity-${severityClass}">
+              ${esc(severity)}${esc(score)}
+            </span>
+          </div>
 
-              <p>${esc(cve.description || "No description available.")}</p>
+          <p>${esc(cve.description || "No description available.")}</p>
 
-              <div class="cve-meta">
-  NVD Status: ${esc(cve.status || "Unknown")}
-</div>
+          <div class="cve-meta">
+            NVD Status: ${esc(cve.status || "Unknown")}
+          </div>
 
-<div class="cve-meta">
-  Version applicability:
-  <strong>
-    ${
-      cve.applicability === "affected"
-        ? "Affected"
-        : cve.applicability === "not_affected"
-          ? "Not affected"
-          : "Unconfirmed"
-    }
-  </strong>
-</div>
-            </article>
-          `;
+          <div class="cve-meta cve-applicability-row">
+            Version applicability:
+            <strong class="cve-applicability cve-applicability-${applicability.className}">
+              ${applicability.label}
+            </strong>
+          </div>
+        </article>
+      `;
         })
         .join("");
     }
@@ -828,6 +882,8 @@ $("export").addEventListener("click", () => {
       "Undetected technologies may still be present.",
       "Security insights are limited to the evidence collected by TechLens.",
       "Informational findings do not establish that a vulnerability exists.",
+      "CVE results are included only when a lookup has been completed.",
+      "An unchecked CVE lookup does not mean a technology is vulnerability-free.",
     ],
   };
 

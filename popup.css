@@ -450,7 +450,7 @@ footer {
 
 .risk-summary {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 12px;
 }
@@ -820,4 +820,118 @@ footer {
 
 .cve-card .cve-meta:last-child strong {
   color: var(--text-secondary, #888);
+}
+
+/* CVE severity badges */
+.cve-severity {
+  display: inline-block;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.cve-severity-critical {
+  color: #ff6b6b;
+  background: rgba(255, 59, 59, 0.14);
+  border-color: rgba(255, 59, 59, 0.35);
+}
+
+.cve-severity-high {
+  color: #ff9f43;
+  background: rgba(255, 159, 67, 0.14);
+  border-color: rgba(255, 159, 67, 0.35);
+}
+
+.cve-severity-medium {
+  color: #f5c542;
+  background: rgba(245, 197, 66, 0.14);
+  border-color: rgba(245, 197, 66, 0.35);
+}
+
+.cve-severity-low {
+  color: #55d6a0;
+  background: rgba(85, 214, 160, 0.14);
+  border-color: rgba(85, 214, 160, 0.35);
+}
+
+.cve-severity-unknown {
+  color: var(--text-secondary, #aaa);
+  background: rgba(127, 127, 127, 0.12);
+  border-color: var(--border-color, #444);
+}
+
+/* CVE version applicability badges */
+.cve-applicability-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.cve-applicability {
+  display: inline-block;
+  padding: 3px 7px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.cve-applicability-affected {
+  color: #ff6b6b;
+  background: rgba(255, 59, 59, 0.14);
+  border-color: rgba(255, 59, 59, 0.35);
+}
+
+.cve-applicability-not-affected {
+  color: #55d6a0;
+  background: rgba(85, 214, 160, 0.14);
+  border-color: rgba(85, 214, 160, 0.35);
+}
+
+.cve-applicability-unconfirmed {
+  color: #f5c542;
+  background: rgba(245, 197, 66, 0.14);
+  border-color: rgba(245, 197, 66, 0.35);
+}
+
+/* Security Priority badges */
+.risk-priority-label {
+  display: inline-block;
+  width: fit-content;
+  padding: 4px 9px;
+  margin-top: 5px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.risk-priority-label.low-priority {
+  color: #55d6a0;
+  background: rgba(85, 214, 160, 0.14);
+  border-color: rgba(85, 214, 160, 0.35);
+}
+
+.risk-priority-label.moderate-priority {
+  color: #f5c542;
+  background: rgba(245, 197, 66, 0.14);
+  border-color: rgba(245, 197, 66, 0.35);
+}
+
+.risk-priority-label.elevated-priority {
+  color: #ff9f43;
+  background: rgba(255, 159, 67, 0.14);
+  border-color: rgba(255, 159, 67, 0.35);
+}
+
+.risk-priority-label.high-priority {
+  color: #ff6b6b;
+  background: rgba(255, 59, 59, 0.14);
+  border-color: rgba(255, 59, 59, 0.35);
 }
