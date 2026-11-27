@@ -20,6 +20,8 @@ TechLens examines accessible page evidence to identify technologies such as:
 - **Analytics and tag management:** Google Analytics, Google Tag Manager, Matomo, and other supported analytics tools
 - **Backend and server indicators:** PHP, ASP.NET, Express/Node.js, Apache, Nginx, and other supported technologies
 - **Hosting and infrastructure indicators:** Cloudflare, AWS, and other supported services
+- **CVE Intelligence:** Retrieves vulnerability information from the NVD API for eligible technologies with confirmed versions and verified CPE identifiers. Displays CVE severity and version applicability status when available.
+- **CVE Report Export:** Includes completed CVE lookup results in exported JSON reports. An unchecked lookup does not mean a technology is vulnerability-free.
 
 The technologies reported depend on the evidence available on the inspected page and the detection rules included in the current version.
 
@@ -200,8 +202,57 @@ Formatting changes should not be treated as proof of functional correctness. Aft
 - **Browser compatibility:** Manifest and background-processing behavior may differ between Chrome and Firefox and across browser versions.
 - **Detection coverage:** Results depend on the rules implemented in the current release.
 
+## What's New in v1.1.0
+
+### Technology Detection
+
+- Expanded technology detection coverage with additional technology signatures and improved detection logic.
+- Improved technology version evidence and product metadata.
+- Added and refined CPE metadata to support vulnerability lookups for eligible technologies.
+- Strengthened web-server technology detection and regression tests.
+
+### CVE Intelligence
+
+- Integrated NVD CVE lookups using verified CPE identifiers and confirmed technology versions.
+- Added CVE severity information and version applicability assessments.
+- Improved CVE lookup handling and browser compatibility.
+- Included completed CVE lookup results in exported JSON technology reports.
+
+### Technologies Supported for CVE Lookup
+
+TechLens v1.1.0 includes verified CPE mappings for the following technologies:
+
+- **Backend:** Django, Flask, Node.js, Redis, Memcached, Laravel, Symfony, Express.js, PHP, CodeIgniter, CakePHP
+- **CMS:** Drupal, Joomla, WordPress
+- **Frontend:** Bootstrap, Next.js, Nuxt, NestJS, React, Vue.js, jQuery, Lodash
+- **Monitoring:** Grafana
+- **Servers and proxies:** Microsoft IIS, OpenResty, Envoy, Gunicorn, Apache Tomcat, Apache HTTP Server, Apache Traffic Server, Caddy, Nginx
+
+**CVE lookup requirements:** A technology must have a verified CPE mapping and a confirmed version. Its version scope must also pass TechLens's CVE readiness checks. Technologies without a confirmed version are not queried for CVEs.
+
+CVE lookup eligibility does not guarantee that NVD will return vulnerability records. No returned records do not establish that a technology is vulnerability-free.
+
+### Security Insights
+
+- Improved severity indicators and security priority labels.
+- Added summary indicators for high-risk and informational findings.
+- Improved the visual presentation of Security Insights and CVE results.
+
+### Reliability and Testing
+
+- Expanded detector, CVE, background, and content-script regression tests.
+- Verified Chrome and Firefox extension builds.
+- Improved formatting consistency and JavaScript syntax validation.
+
+### Important Limitations
+
+- Technology detection is based on browser-accessible page evidence and supported detection rules.
+- CVE results depend on verified CPE mappings, confirmed technology versions, and successful CVE readiness checks.
+- CVE applicability information does not establish that a website is exploitable or vulnerable.
+- Security Insights are based on selected observable HTTP response headers, not a complete security audit.
+
 ## Version
 
-**TechLens 1.0.0**
+**TechLens 1.1.0**
 
-This release focuses on passive technology identification, evidence-based detection, confidence indicators, security-header insights, and JSON report exports.
+This release builds on passive technology identification with expanded detection coverage, version evidence, NVD-based CVE intelligence, improved Security Insights, CVE applicability indicators, and enhanced JSON report exports.
